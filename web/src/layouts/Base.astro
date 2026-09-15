@@ -27,20 +27,100 @@ const base = import.meta.env.BASE_URL;
 		<meta name="twitter:card" content="summary_large_image" />
 
 		<link rel="alternate" hreflang={lang === 'es' ? 'en' : 'es'} href={altHref} />
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+			rel="stylesheet"
+		/>
+
+		<!-- The game's own UI font (Assets/Fonts/PixelFont.ttf in the main repo, internal name
+		     "Infinitix Pixel") — the game applies it as a single project-wide font via
+		     project.godot's [gui] theme/custom_font, so the site uses the exact same file rather
+		     than a lookalike web font, for headings, labels and body alike (matching how the game
+		     itself has no separate heading/body typeface). -->
+		<link rel="preload" href={`${base}/fonts/InfinitixPixel.ttf`} as="font" type="font/ttf" crossorigin />
 	</head>
 	<body>
-		<slot />
+		<div class="loader-veil" aria-hidden="true">
+			<img class="loader-logo" src={`${base}/logo.png`} alt="" />
+		</div>
+		<div class="loader-flash" aria-hidden="true"></div>
+		<div class="vector-grid-bg">
+			<slot />
+		</div>
+
+		<script>
+			import Lenis from 'lenis';
+
+			// Skips the smoothing/inertia entirely for anyone who's asked their OS for reduced
+			// motion — native instant scroll for them, not a lighter version of the same effect.
+			if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+				// anchors: true makes the header's #arsenal / #manifesto links (and any other
+				// same-page hash link) glide with the same inertia as wheel/touch scrolling,
+				// instead of the browser's native instant jump. Full native frame rate — the
+				// "12 FPS arcade" convention applies to the site's decorative CSS animations
+				// (loader, hovers, flicker), not to scroll itself, which reads as broken rather
+				// than retro when throttled.
+				new Lenis({ autoRaf: true, anchors: true });
+			}
+		</script>
 	</body>
 </html>
 
+<style set:html={`
+	/* The game's own UI font (Assets/Fonts/PixelFont.ttf in the main repo, internal name
+	   "Infinitix Pixel") — see Base.astro's --font-display/--font-mono for how it's applied.
+	   In its own <style set:html> tag rather than the plain-CSS block below: @font-face's src
+	   needs the real \${base} path (this site deploys under /infinitix, not domain root, per
+	   astro.config.mjs), and unlike every other url() on this page, @font-face isn't tied to an
+	   element, so a CSS custom property here wouldn't resolve — set:html + a template literal is
+	   the one place in this file that actually interpolates \`base\` inside a <style> tag. */
+	@font-face {
+		font-family: 'Infinitix Pixel';
+		src: url('${base}/fonts/InfinitixPixel.ttf') format('truetype');
+		font-weight: 400;
+		font-style: normal;
+		font-display: swap;
+	}
+`} />
+
 <style is:global>
+	/*
+	 * "Infinitix Arcade Matrix" — the game's own Stitch design system (icons, badges, arena
+	 * backgrounds already use it, see docs in the repo history), applied here to the web for the
+	 * first time. Deep-space navy, electric cyan / hot magenta / arcade gold, chamfered coin-op
+	 * panels, scanlines. Ported to plain CSS rather than the Tailwind-CDN build Stitch generates —
+	 * a runtime JIT compiler shipped to every visitor is a dev-only convenience, not something a
+	 * static site should carry into production, and every other page here is already plain CSS.
+	 */
 	:root {
-		--bg: #0b0614;
-		--panel: #1a1024;
-		--cyan: #7dfdfe;
-		--magenta: #ff4fd8;
-		--text: #f2eefb;
-		--text-dim: #b8aed0;
+		--bg: #08051a;
+		--bg-grid: rgba(0, 240, 255, 0.06);
+		--surface: #141026;
+		--surface-low: #1c192f;
+		--surface-lowest: #0f0b21;
+		--surface-high: #201d33;
+
+		--cyan: #00f0ff;
+		--cyan-dim: #00dbe9;
+		--cyan-text: #dbfcff;
+		--magenta: #ff4a8d;
+		--magenta-text: #ffb1c4;
+		--gold: #ffd700;
+		--gold-text: #fff5de;
+
+		--text: #e6defe;
+		--text-dim: #b9cacb;
+		--outline: rgba(0, 240, 255, 0.25);
+		--outline-dim: #3b494b;
+
+		/* The game has exactly one font used everywhere (headings, body, HUD, labels — see the
+		   @font-face below), so --font-display and --font-mono are deliberately the same value
+		   here too, not two different typefaces the way a typical site would split them. */
+		--font-display: 'Infinitix Pixel', 'Courier New', monospace;
+		--font-mono: 'Infinitix Pixel', 'Courier New', monospace;
 	}
 
 	* {
@@ -51,34 +131,331 @@ const base = import.meta.env.BASE_URL;
 	body {
 		margin: 0;
 		padding: 0;
+		/* The hero's full-bleed breakout (width:100vw + negative margins) overshoots by the
+		   scrollbar's own width on desktop — this clips that overshoot instead of adding a second,
+		   horizontal scrollbar. Deliberately `clip`, not `hidden`: `hidden` (and `auto`/`scroll`)
+		   makes the element establish a scroll container of its own, which breaks `position: sticky`
+		   for every descendant (the header included) — it starts scrolling relative to that new
+		   container instead of the real viewport. `clip` visually clips the overshoot the same way
+		   without creating one.
+		*/
+		overflow-x: clip;
 	}
 
 	body {
 		background: var(--bg);
 		color: var(--text);
-		font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+		font-family: var(--font-display);
 		line-height: 1.6;
+		position: relative;
+	}
+
+	/* Every animation on this site (this loader included) uses CSS steps() instead of eased
+	   interpolation — discrete jumps between a fixed number of frames rather than a smooth
+	   crossfade, which is what a low frame rate actually looks like. Reference is "12 FPS arcade":
+	   an animation's step count is its duration in seconds × 12, rounded — e.g. 0.5s → steps(6).
+	   Every steps()/keyframe below in this file is picked against that same reference. */
+
+	/* A dark veil that covers the page on load, holds, then peels back — a small boot sequence
+	   for the logo rather than a plain flash-of-unstyled-content mask. Pure CSS, no JS: works
+	   before any script would even run, and pointer-events:none throughout so it's never in the
+	   way even mid-animation.
+	   Timeline: 0–1.0s the veil holds solid while the logo flickers on (below); 1.0–1.5s the whole
+	   veil steps out (steps(6) @ 12fps = 0.5s), staged to land right as .loader-flash pops. */
+	.loader-veil {
+		position: fixed;
+		inset: 0;
+		z-index: 100;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--bg);
+		pointer-events: none;
+		animation: loader-fade-out 0.5s steps(6, jump-end) 1s forwards;
+	}
+
+	.loader-logo {
+		width: min(60vw, 280px);
+		height: auto;
+		filter: drop-shadow(0 0 24px rgba(0, 240, 255, 0.45));
+		opacity: 0;
+		/* steps(1, jump-end): no interpolation between stops at all — each keyframe is a hard cut
+		   to the next, which is what makes this read as a flicker instead of a pulse. */
+		animation: logo-boot-flicker 0.85s steps(1, jump-end) forwards;
+	}
+
+	@keyframes loader-fade-out {
+		from {
+			opacity: 1;
+		}
+		to {
+			opacity: 0;
+		}
+	}
+
+	@keyframes logo-boot-flicker {
+		0% {
+			opacity: 0;
+			transform: scale(0.9);
+		}
+		10% {
+			opacity: 1;
+			transform: scale(1.04);
+		}
+		18% {
+			opacity: 0.15;
+		}
+		26% {
+			opacity: 1;
+			transform: scale(0.98);
+		}
+		34% {
+			opacity: 0.1;
+		}
+		44% {
+			opacity: 1;
+			transform: scale(1.02);
+		}
+		55% {
+			opacity: 0.3;
+		}
+		64% {
+			opacity: 1;
+			transform: scale(1);
+		}
+		100% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	/* The design system's own "Phosphor Flash" (see the design-md docs further down this file) —
+	   defined there for "major victory/high-score states" but never actually used anywhere until
+	   now: a screen-on flash timed to when the loader veil finishes peeling back. Sits below the
+	   veil (z-index) and above the real page, so it reads as the CRT lighting up as the darkness
+	   clears rather than a flat color wipe. */
+	.loader-flash {
+		position: fixed;
+		inset: 0;
+		z-index: 90;
+		background: var(--cyan);
+		mix-blend-mode: screen;
+		opacity: 0;
+		pointer-events: none;
+		animation: phosphor-flash 0.35s steps(4, jump-end) 1s forwards;
+	}
+
+	@keyframes phosphor-flash {
+		0% {
+			opacity: 0;
+		}
+		15% {
+			opacity: 0.9;
+		}
+		40% {
+			opacity: 0.5;
+		}
+		100% {
+			opacity: 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.loader-veil,
+		.loader-logo,
+		.loader-flash {
+			animation: none;
+			opacity: 0;
+		}
+	}
+
+	/* Ambient "imperfect neon sign" flicker — mostly steady, with a couple of quick dips near the
+	   end of each loop, steps() throughout so the dips read as flicker rather than a smooth pulse.
+	   Applied to small standalone badges/pills (tagline, genre chips), not to large surfaces where
+	   a flicker would be distracting rather than charming.
+	   Deliberately steps(1, jump-end) rather than a computed 12-FPS step count (duration × 12,
+	   the convention every other animation in this file follows): a glitch has to land as one hard,
+	   instant cut, not a rapid-but-still-interpolated slide toward the dip — steps(1) is the most
+	   extreme "no interpolation at all" case, which is what actually reads as a glitch. A larger
+	   step count here would smooth the cut back out and undo the effect. */
+	.neon-flicker {
+		animation: neon-flicker 3.6s steps(1, jump-end) infinite;
+	}
+
+	/* The jitter below uses the standalone `translate` property, not `transform` — deliberately:
+	   .neon-flicker-glow runs on .card, which already has its own `transform: translateY(-3px)`
+	   hover transition. `translate`/`rotate`/`scale` are separate CSS properties from `transform`
+	   and compose with it instead of one clobbering the other, so the hover lift and this glitch
+	   jitter can both be in effect at once without fighting over the same property. */
+	@keyframes neon-flicker {
+		0%,
+		92% {
+			opacity: 1;
+			translate: 0 0;
+		}
+		94% {
+			opacity: 0.8;
+			translate: -2px 0;
+		}
+		96% {
+			opacity: 1;
+			translate: 1px 0;
+		}
+		97.5% {
+			opacity: 0.7;
+			translate: -1px 0;
+		}
+		100% {
+			opacity: 1;
+			translate: 0 0;
+		}
+	}
+
+	/* Same idea as .neon-flicker, but via filter:brightness() instead of opacity — dims the whole
+	   rendered element (border, glow, fill) together rather than fading it toward transparent, so
+	   text stays fully legible through the dips. For bigger surfaces that carry copy: cards,
+	   buttons, chips — where a straight opacity flicker would read as "this button just broke" for
+	   a frame instead of "this is a neon sign". */
+	.neon-flicker-glow {
+		animation: neon-flicker-glow 4.2s steps(1, jump-end) infinite;
+	}
+
+	@keyframes neon-flicker-glow {
+		0%,
+		90% {
+			filter: brightness(1);
+			translate: 0 0;
+		}
+		91.5% {
+			filter: brightness(0.55);
+			translate: -3px 0;
+		}
+		93% {
+			filter: brightness(1);
+			translate: 2px 0;
+		}
+		96% {
+			filter: brightness(0.7);
+			translate: -1px 0;
+		}
+		97% {
+			filter: brightness(1);
+			translate: 0 0;
+		}
+		100% {
+			filter: brightness(1);
+			translate: 0 0;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.neon-flicker,
+		.neon-flicker-glow {
+			animation: none;
+		}
+	}
+
+	/* Cosmic vector grid, the design system's "infinite depth canvas" — a faint 40px cyan grid
+	   behind everything, same as the arena's own perspective grid in-game. */
+	.vector-grid-bg {
+		position: relative;
+		min-height: 100vh;
+		background-image: linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+			linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+		background-size: 40px 40px;
+	}
+
+	/* CRT scanline overlay — a hairline horizontal raster over the whole page, the same "you're
+	   looking at a cabinet screen" texture the design system defines. Fixed + pointer-events:none so
+	   it never intercepts a click. */
+	.vector-grid-bg::before {
+		content: '';
+		position: fixed;
+		inset: 0;
+		z-index: 40;
+		pointer-events: none;
+		opacity: 0.5;
+		background: repeating-linear-gradient(
+			0deg,
+			rgba(0, 0, 0, 0) 0px,
+			rgba(0, 0, 0, 0) 2px,
+			rgba(0, 0, 0, 0.35) 3px
+		);
 	}
 
 	a {
 		color: var(--cyan);
 	}
 
-	main {
-		max-width: 760px;
-		margin: 0 auto;
-		padding: 0 24px 80px;
-	}
-
 	h1,
 	h2,
 	h3 {
 		line-height: 1.2;
+		font-family: var(--font-display);
 	}
 
 	code {
-		background: var(--panel);
+		background: var(--surface);
 		padding: 0.1em 0.4em;
 		border-radius: 4px;
+		font-family: var(--font-mono);
+	}
+
+	main {
+		max-width: 960px;
+		margin: 0 auto;
+		padding: 0 24px 80px;
+		position: relative;
+		z-index: 1;
+	}
+
+	/* --- Shared arcade-cabinet primitives, used across Header/Footer/index pages --- */
+
+	.chamfer {
+		clip-path: polygon(0 14px, 14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+	}
+
+	.chamfer-sm {
+		clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+	}
+
+	.glow-cyan {
+		box-shadow: 0 0 20px rgba(0, 240, 255, 0.25), inset 0 0 12px rgba(0, 240, 255, 0.08);
+	}
+
+	.glow-magenta {
+		box-shadow: 0 0 18px rgba(255, 74, 141, 0.3);
+	}
+
+	.text-glow-cyan {
+		text-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.35);
+	}
+
+	.text-glow-magenta {
+		text-shadow: 0 0 8px rgba(255, 74, 141, 0.8), 0 0 18px rgba(255, 74, 141, 0.4);
+	}
+
+	.label {
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+	}
+
+	.material-symbols-outlined {
+		font-family: 'Material Symbols Outlined';
+		font-weight: normal;
+		font-style: normal;
+		font-size: 24px;
+		line-height: 1;
+		letter-spacing: normal;
+		text-transform: none;
+		display: inline-block;
+		white-space: nowrap;
+		word-wrap: normal;
+		direction: ltr;
+		-webkit-font-feature-settings: 'liga';
+		font-feature-settings: 'liga';
+		-webkit-font-smoothing: antialiased;
 	}
 </style>

@@ -8,59 +8,106 @@ interface Props {
 const { lang, esHref, enHref } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const home = lang === 'es' ? `${base}/` : `${base}/en/`;
+
+const t = lang === 'es'
+  ? { arsenal: 'ARSENAL', manifesto: 'MANIFIESTO' }
+  : { arsenal: 'ARSENAL', manifesto: 'MANIFESTO' };
 ---
 
 <header>
-	<a class="brand" href={home}>
-		<img src={`${base}/logo.png`} alt="Infinitix" height="34" />
-	</a>
-	<nav>
-		<a href={esHref} class:list={{ active: lang === 'es' }}>ES</a>
-		<span aria-hidden="true">/</span>
-		<a href={enHref} class:list={{ active: lang === 'en' }}>EN</a>
-	</nav>
+	<div class="bar">
+		<a class="brand" href={home}>
+			<img src={`${base}/logo.png`} alt="Infinitix" height="30" />
+		</a>
+
+		<nav class="section-links">
+			<a href={`${home}#arsenal`}>{t.arsenal}</a>
+			<a href={`${home}#manifesto`}>{t.manifesto}</a>
+		</nav>
+
+		<nav class="lang">
+			<a href={esHref} class:list={{ active: lang === 'es' }}>ES</a>
+			<span aria-hidden="true">/</span>
+			<a href={enHref} class:list={{ active: lang === 'en' }}>EN</a>
+		</nav>
+	</div>
 </header>
 
 <style>
 	header {
-		max-width: 760px;
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		background: rgba(20, 16, 38, 0.9);
+		backdrop-filter: blur(8px);
+		border-bottom: 1px solid var(--outline);
+		box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+	}
+
+	.bar {
+		max-width: 960px;
 		margin: 0 auto;
-		padding: 28px 24px 0;
+		padding: 14px 24px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: 16px;
 	}
 
 	.brand {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		color: var(--text);
 		text-decoration: none;
-		font-weight: 700;
-		letter-spacing: 0.06em;
-		font-size: 1.1rem;
+		flex-shrink: 0;
 	}
 
 	.brand img {
 		display: block;
 	}
 
-	nav {
+	.section-links {
+		display: none;
+		gap: 28px;
+	}
+
+	@media (min-width: 640px) {
+		.section-links {
+			display: flex;
+		}
+	}
+
+	.section-links a {
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		color: var(--text-dim);
+		text-decoration: none;
+		transition: color 0.15s steps(3, jump-end);
+	}
+
+	.section-links a:hover {
+		color: var(--cyan);
+		text-shadow: 0 0 8px rgba(0, 240, 255, 0.6);
+	}
+
+	.lang {
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		font-size: 0.85rem;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
 		color: var(--text-dim);
+		flex-shrink: 0;
 	}
 
-	nav a {
+	.lang a {
 		color: var(--text-dim);
 		text-decoration: none;
 		padding: 2px 4px;
 	}
 
-	nav a.active {
+	.lang a.active {
 		color: var(--cyan);
 		font-weight: 700;
 	}

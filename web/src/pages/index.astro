@@ -15,34 +15,147 @@ const base = import.meta.env.BASE_URL;
 	<Header lang="es" esHref={`${base}/`} enHref={`${base}/en/`} />
 
 	<main>
-		<section class="hero">
-			<img class="logo" src={`${base}/logo.png`} alt="Infinitix" />
-			<p class="tagline">La ronda que nunca se corta</p>
-			<p class="premise">
-				No hay historia que termine porque la ronda no termina. Te subís a la arena, los
-				demonios no paran de escalar, y la única salida es sobrevivir una más — y después
-				otra. Infinitix es ese "una más" convertido en juego: cada ronda te hace más
-				fuerte, cada ronda manda algo peor a buscarte, y no hay final feliz esperándote
-				al otro lado. Solo el próximo récord.
-			</p>
-			<a class="cta" href="#" aria-disabled="true">Próximamente en Google Play</a>
+		<section class="hero" id="hero">
+			<div class="hero-banner" style={`background-image: url(${base}/hero-banner.png)`}></div>
+
+			<div class="hero-copy-wrap">
+				<div class="hero-copy">
+					<div class="genre-chips neon-flicker">
+						<span class="genre-chip">Roguelike</span>
+						<span class="genre-chip">Arcade</span>
+						<span class="genre-chip">Offline</span>
+					</div>
+
+					<div class="tagline-badge chamfer-sm glow-magenta neon-flicker">
+						<span class="tagline text-glow-magenta">La ronda que nunca se corta</span>
+					</div>
+
+					<p class="premise">
+						No hay historia que termine porque la ronda no termina. Te subís a la
+						arena, los demonios no paran de escalar, y la única salida es sobrevivir
+						una más — y después otra. Infinitix es ese "una más" convertido en
+						juego: cada ronda te hace más fuerte, cada ronda manda algo peor a
+						buscarte, y no hay final feliz esperándote al otro lado. Solo el próximo
+						récord.
+					</p>
+
+					<button class="cta chamfer-sm" disabled>
+						<span>Próximamente en Google Play</span>
+					</button>
+
+					<div class="trust-chips">
+						<div class="chip">
+							<div class="chip-value cyan">100%</div>
+							<div class="chip-label">OFFLINE</div>
+						</div>
+						<div class="chip">
+							<div class="chip-value magenta">0</div>
+							<div class="chip-label">ADS</div>
+						</div>
+						<div class="chip">
+							<div class="chip-value gold">0</div>
+							<div class="chip-label">COMPRAS</div>
+						</div>
+						<div class="chip">
+							<div class="chip-value cyan">GRATIS</div>
+							<div class="chip-label">SIEMPRE</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</section>
 
-		<section class="features">
-			<div class="feature">
-				<h2>Disparo automático</h2>
-				<p>Movete con el joystick, tu nave dispara sola al enemigo más cercano. Toda la
-				atención va a esquivar, no a apuntar.</p>
+		<section class="arsenal" id="arsenal">
+			<div class="section-head">
+				<div class="eyebrow label cyan">SUBSISTEMAS // MATRIZ DE COMBATE</div>
+				<h2>Sistema de combate</h2>
 			</div>
-			<div class="feature">
-				<h2>Cada ronda, más fuerte</h2>
-				<p>Subís de nivel en plena partida y elegís mejoras: cadencia, alcance, daño,
-				habilidades nuevas. Cada corrida arma una build distinta.</p>
+
+			<div class="cards">
+				<article class="card glow-cyan neon-flicker-glow">
+					<div class="card-top">
+						<span class="tag chamfer-sm cyan-tag label">TÁCTICA 01</span>
+						<span class="material-symbols-outlined cyan">gps_fixed</span>
+					</div>
+					<h3 class="cyan">Disparo automático</h3>
+					<p>
+						Movete con el joystick, tu nave dispara sola al enemigo más cercano. Toda
+						la atención va a esquivar, no a apuntar.
+					</p>
+					<div class="card-foot label cyan">
+						<span>APUNTADO: AUTO</span>
+					</div>
+				</article>
+
+				<article class="card glow-magenta neon-flicker-glow">
+					<div class="card-top">
+						<span class="tag chamfer-sm magenta-tag label">ROGUELITE 02</span>
+						<span class="material-symbols-outlined magenta">upgrade</span>
+					</div>
+					<h3 class="magenta">Cada ronda, más fuerte</h3>
+					<p>
+						Subís de nivel en plena partida y elegís mejoras: cadencia, alcance, daño,
+						habilidades nuevas. Cada corrida arma una build distinta.
+					</p>
+					<div class="card-foot label magenta">
+						<span>EVOLUCIÓN: EXPONENCIAL</span>
+					</div>
+				</article>
+
+				<article class="card glow-gold neon-flicker-glow">
+					<div class="card-top">
+						<span class="tag chamfer-sm gold-tag label">HANGAR 03</span>
+						<span class="material-symbols-outlined gold">shield</span>
+					</div>
+					<h3 class="gold">Elegí tu piloto</h3>
+					<p>
+						Un roster de personajes con perks propios — y la posibilidad de crear el
+						tuyo con tu propia foto, guardado siempre en tu dispositivo.
+					</p>
+					<div class="card-foot label gold">
+						<span>DATOS: SOLO LOCAL</span>
+					</div>
+				</article>
 			</div>
-			<div class="feature">
-				<h2>Elegí tu piloto</h2>
-				<p>Un roster de personajes con perks propios — y la posibilidad de crear el tuyo
-				con tu propia foto, guardado siempre en tu dispositivo.</p>
+		</section>
+
+		<section class="manifesto" id="manifesto">
+			<div class="panel glow-cyan">
+				<span class="corner-tag tl">// SIN LETRA CHICA</span>
+				<span class="corner-tag tr">SIN ADS // SIN TRACKING</span>
+
+				<div class="manifesto-head">
+					<span class="pill label cyan">CÓDIGO DE HONOR COIN-OP</span>
+					<h2>Manifiesto arcade</h2>
+					<p>
+						El espíritu de los salones recreativos de los 80 vuelto a forjar para tu
+						teléfono. Sin trampas psicológicas, sin peajes.
+					</p>
+				</div>
+
+				<div class="badges">
+					<div class="badge">
+						<div class="badge-icon cyan glow-cyan">
+							<span class="material-symbols-outlined">wifi_off</span>
+						</div>
+						<h4 class="cyan">Sin conexión</h4>
+						<p>Jugás donde y cuando quieras — subte, avión, o directamente sin señal — sin gastar ni un byte de datos.</p>
+					</div>
+					<div class="badge">
+						<div class="badge-icon magenta glow-magenta">
+							<span class="material-symbols-outlined">shopping_cart_off</span>
+						</div>
+						<h4 class="magenta">Sin compras</h4>
+						<p>Cero microtransacciones, cero pago para ganar. Tu única moneda son tus reflejos.</p>
+					</div>
+					<div class="badge">
+						<div class="badge-icon gold glow-gold">
+							<span class="material-symbols-outlined">no_accounts</span>
+						</div>
+						<h4 class="gold">Sin cuentas</h4>
+						<p>Nada de registros ni emails. Instalás y jugás — sin analíticas comerciales ni rastreo.</p>
+					</div>
+				</div>
 			</div>
 		</section>
 	</main>
@@ -51,65 +164,418 @@ const base = import.meta.env.BASE_URL;
 </Base>
 
 <style>
+	/* Full-bleed breakout: escapes <main>'s max-width/padding so the banner runs edge to edge,
+	   regardless of how narrow or wide the viewport is. */
 	.hero {
-		padding-top: 64px;
-		text-align: center;
+		position: relative;
+		width: 100vw;
+		margin-left: calc(50% - 50vw);
+		margin-right: calc(50% - 50vw);
 	}
 
-	.hero .logo {
-		width: min(90vw, 520px);
-		height: auto;
-		filter: drop-shadow(0 0 24px rgba(125, 253, 254, 0.35));
+	.hero-banner {
+		position: relative;
+		width: 100%;
+		/* Locks to the source art's own aspect ratio instead of a fixed min-height, so a narrow
+		   phone viewport gets a short strip (no forced zoom-crop of the artwork) and a wide
+		   desktop gets a tall showcase — cover never has to fight a mismatched container. */
+		aspect-ratio: 1376 / 768;
+		background-size: cover;
+		background-position: center top;
+		background-repeat: no-repeat;
+
+		/* The actual "fade into the page" effect: masks the image itself to transparent toward
+		   the bottom, so what shows through underneath is the page's own dark background/grid —
+		   not a solid scrim panel pretending to match it. */
+		-webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 92%);
+		mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 92%);
+
+		/* Reuses Base.astro's shared glitch keyframe (see .card/.chip/.cta) but at a much slower
+		   loop — this is the biggest, most prominent element on the page, so its glitch should read
+		   as "every so often" rather than the more frequent flicker that suits small chips. */
+		animation: neon-flicker-glow 4s steps(1, jump-end) infinite;
+	}
+
+	.hero-copy-wrap {
+		position: relative;
+		max-width: 960px;
+		margin: -24px auto 0;
+		padding: 0 24px 40px;
+	}
+
+	@media (min-width: 640px) {
+		.hero-copy-wrap {
+			margin-top: -110px;
+			padding-bottom: 56px;
+		}
+	}
+
+	.hero-copy {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+		gap: 18px;
+		max-width: 520px;
+		margin: 0 auto;
+	}
+
+	.genre-chips {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 8px;
+	}
+
+	.genre-chip {
+		font-family: var(--font-mono);
+		font-size: 0.65rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--cyan-dim);
+		background: rgba(0, 240, 255, 0.06);
+		border: 1px solid rgba(0, 240, 255, 0.35);
+		border-radius: 999px;
+		padding: 4px 12px;
+	}
+
+	.tagline-badge {
+		display: inline-flex;
+		align-items: center;
+		background: var(--surface-high);
+		border: 1px solid rgba(255, 74, 141, 0.6);
+		padding: 8px 14px;
 	}
 
 	.tagline {
 		color: var(--magenta);
-		font-weight: 600;
-		margin-top: 6px;
+		font-family: var(--font-mono);
+		font-weight: 700;
+		font-size: 0.8rem;
+		letter-spacing: 0.08em;
 	}
 
 	.premise {
-		max-width: 560px;
-		margin: 24px auto 0;
 		color: var(--text-dim);
+		margin: 0;
 	}
 
 	.cta {
-		display: inline-block;
-		margin-top: 32px;
-		padding: 14px 28px;
-		border-radius: 10px;
-		border: 2px solid var(--cyan);
-		color: var(--cyan);
-		text-decoration: none;
+		width: 100%;
+		padding: 16px 20px;
+		background: linear-gradient(90deg, var(--cyan), var(--cyan-dim));
+		border: none;
+		color: #00363a;
+		font-family: var(--font-display);
 		font-weight: 700;
-		opacity: 0.85;
+		font-size: 1rem;
+		letter-spacing: 0.03em;
 		cursor: default;
+		opacity: 0.92;
+		/* A disabled button that still reads as "alive" — an "insert coin"-style standby pulse
+		   layered with a neon flicker, instead of sitting completely inert until the real launch
+		   link goes live. Two independent animations on the same element: the slow glow breathing
+		   and the quick brightness flicker run on their own clocks rather than one trying to do
+		   both jobs. */
+		animation: cta-standby-pulse 2.4s steps(6, jump-end) infinite,
+			neon-flicker-glow 4.2s steps(1, jump-end) infinite;
 	}
 
-	.features {
+	@keyframes cta-standby-pulse {
+		0%,
+		100% {
+			box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+		}
+		50% {
+			box-shadow: 0 0 26px rgba(0, 240, 255, 0.75);
+		}
+	}
+
+	.trust-chips {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 24px;
-		margin-top: 72px;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 8px;
+		margin-top: 4px;
 	}
 
-	.feature {
-		background: var(--panel);
-		border: 1px solid rgba(255, 255, 255, 0.06);
-		border-radius: 12px;
-		padding: 20px;
+	.chip {
+		background: var(--surface-high);
+		border: 1px solid rgba(0, 240, 255, 0.2);
+		/* Same cut-corner shape as the .cta button (Base.astro's .chamfer-sm). */
+		clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+		padding: 8px 4px;
+		text-align: center;
+		animation: neon-flicker-glow 4.2s steps(1, jump-end) infinite;
 	}
 
-	.feature h2 {
-		font-size: 1.05rem;
+	/* Staggered per chip so a row of four doesn't flicker in perfect unison — reads like four
+	   independent, slightly imperfect little lights instead of one synced blink. */
+	.chip:nth-child(2) {
+		animation-delay: 0.9s;
+	}
+
+	.chip:nth-child(3) {
+		animation-delay: 1.8s;
+	}
+
+	.chip:nth-child(4) {
+		animation-delay: 2.7s;
+	}
+
+	.chip-value {
+		font-family: var(--font-mono);
+		font-weight: 700;
+		font-size: 0.85rem;
+	}
+
+	.chip-label {
+		font-family: var(--font-mono);
+		font-size: 0.6rem;
+		letter-spacing: 0.08em;
+		color: var(--text-dim);
+		margin-top: 2px;
+	}
+
+	.cyan {
 		color: var(--cyan);
-		margin: 0 0 8px;
 	}
 
-	.feature p {
+	.magenta {
+		color: var(--magenta);
+	}
+
+	.gold {
+		color: var(--gold);
+	}
+
+	/* --- Arsenal / feature cards --- */
+
+	.arsenal {
+		padding: 72px 0 0;
+	}
+
+	.section-head {
+		border-bottom: 1px solid var(--outline);
+		padding-bottom: 16px;
+		margin-bottom: 40px;
+	}
+
+	.eyebrow {
+		margin-bottom: 6px;
+	}
+
+	.section-head h2,
+	.manifesto-head h2 {
+		font-size: 1.6rem;
+		color: var(--text);
+		margin: 0;
+		letter-spacing: 0.02em;
+	}
+
+	.cards {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 24px;
+	}
+
+	.card {
+		background: var(--surface-low);
+		border: 1px solid rgba(0, 240, 255, 0.25);
+		/* Same cut-corner shape as the .cta button (Base.astro's .chamfer-sm). */
+		clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+		padding: 22px;
+		display: flex;
+		flex-direction: column;
+		transition: transform 0.2s steps(3, jump-end), border-color 0.2s steps(3, jump-end),
+			box-shadow 0.2s steps(3, jump-end);
+	}
+
+	.card:hover {
+		transform: translateY(-3px);
+		border-color: rgba(255, 255, 255, 0.5);
+	}
+
+	.card.glow-cyan:hover {
+		box-shadow: 0 0 28px rgba(0, 240, 255, 0.45);
+	}
+
+	.card.glow-magenta:hover {
+		box-shadow: 0 0 26px rgba(255, 74, 141, 0.5);
+	}
+
+	.card.glow-gold:hover {
+		box-shadow: 0 0 26px rgba(255, 215, 0, 0.35);
+	}
+
+	/* Staggered so the 3 cards don't flicker in unison — see the trust chips' identical pattern. */
+	.cards .card:nth-child(2) {
+		animation-delay: 1.4s;
+	}
+
+	.cards .card:nth-child(3) {
+		animation-delay: 2.8s;
+	}
+
+	.card-top {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 18px;
+	}
+
+	.tag {
+		padding: 3px 8px;
+		border: 1px solid currentColor;
+	}
+
+	.cyan-tag {
+		color: var(--cyan);
+		background: rgba(0, 240, 255, 0.08);
+	}
+
+	.magenta-tag {
+		color: var(--magenta);
+		background: rgba(255, 74, 141, 0.08);
+	}
+
+	.gold-tag {
+		color: var(--gold);
+		background: rgba(255, 215, 0, 0.08);
+	}
+
+	.card h3 {
+		font-size: 1.1rem;
+		margin: 0 0 10px;
+	}
+
+	.card p {
 		margin: 0;
 		color: var(--text-dim);
 		font-size: 0.92rem;
+		flex-grow: 1;
+	}
+
+	.card-foot {
+		margin-top: 18px;
+		padding-top: 14px;
+		border-top: 1px solid var(--outline-dim);
+	}
+
+	.glow-gold {
+		box-shadow: 0 0 18px rgba(255, 215, 0, 0.15);
+	}
+
+	/* --- Manifesto / trust badges --- */
+
+	.manifesto {
+		padding: 72px 0 0;
+	}
+
+	.panel {
+		position: relative;
+		background: var(--surface-high);
+		border: 2px solid rgba(0, 240, 255, 0.3);
+		/* Same cut-corner shape as the .cta button (Base.astro's .chamfer-sm), duplicated here
+		   rather than applied as a class so it stays local to this rule. */
+		clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+		padding: 32px 20px;
+		overflow: hidden;
+	}
+
+	@media (min-width: 640px) {
+		.panel {
+			padding: 48px;
+		}
+	}
+
+	.corner-tag {
+		position: absolute;
+		font-family: var(--font-mono);
+		font-size: 0.65rem;
+		color: rgba(0, 240, 255, 0.4);
+	}
+
+	.corner-tag.tl {
+		top: 12px;
+		left: 12px;
+	}
+
+	.corner-tag.tr {
+		top: 12px;
+		right: 12px;
+		display: none;
+	}
+
+	@media (min-width: 640px) {
+		.corner-tag.tr {
+			display: block;
+		}
+	}
+
+	.manifesto-head {
+		text-align: center;
+		max-width: 560px;
+		margin: 0 auto 48px;
+	}
+
+	.pill {
+		display: inline-block;
+		background: var(--surface-low);
+		border: 1px solid rgba(0, 240, 255, 0.3);
+		border-radius: 4px;
+		padding: 5px 12px;
+	}
+
+	.manifesto-head h2 {
+		margin: 14px 0 10px;
+	}
+
+	.manifesto-head p {
+		color: var(--text-dim);
+		margin: 0;
+	}
+
+	.badges {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 20px;
+	}
+
+	.badge {
+		background: var(--surface-lowest);
+		border: 1px solid rgba(0, 240, 255, 0.2);
+		/* Same cut-corner shape as the .cta button (Base.astro's .chamfer-sm). */
+		clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+		padding: 20px;
+		transition: transform 0.2s steps(3, jump-end), border-color 0.2s steps(3, jump-end);
+	}
+
+	.badge:hover {
+		transform: translateY(-2px);
+		border-color: rgba(0, 240, 255, 0.5);
+	}
+
+	.badge-icon {
+		width: 44px;
+		height: 44px;
+		border-radius: 6px;
+		border: 1px solid currentColor;
+		background: rgba(255, 255, 255, 0.04);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 14px;
+	}
+
+	.badge h4 {
+		margin: 0 0 8px;
+		font-size: 1rem;
+	}
+
+	.badge p {
+		margin: 0;
+		color: var(--text-dim);
+		font-size: 0.88rem;
 	}
 </style>
