@@ -18,7 +18,9 @@ const base = import.meta.env.BASE_URL;
 		<title>{title}</title>
 		<meta name="description" content={description} />
 
-		<link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+		<!-- Assets/Branding/app_icon_192.png in the game's own repo — the same chrome X the game
+		     uses as its Android app icon, reused here so the tab icon matches. -->
+		<link rel="icon" type="image/png" href={`${base}/favicon.png`} />
 
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
