@@ -52,6 +52,7 @@ const base = import.meta.env.BASE_URL;
 		<div class="vector-grid-bg">
 			<slot />
 		</div>
+		<div class="crt-overlay" aria-hidden="true"></div>
 
 		<script>
 			import Lenis from 'lenis';
@@ -383,6 +384,49 @@ const base = import.meta.env.BASE_URL;
 			rgba(0, 0, 0, 0) 2px,
 			rgba(0, 0, 0, 0.35) 3px
 		);
+	}
+
+	/* The "you're looking at a physical CRT cabinet" layer: a real barrel-curved screen isn't
+	   something CSS can do to live page content without warping the text into illegibility (that
+	   needs an SVG displacement filter or WebGL canvas, which brings real accessibility/perf cost
+	   for a cosmetic flourish) — so this fakes the same read with the parts that don't require
+	   distorting the DOM: a dark vignette toward the corners (like looking into a tube through its
+	   glass), a soft diagonal glass sheen across the top, and a slow, barely-there brightness
+	   flicker (steps(), same "12 FPS arcade" convention as everything else). Sits above the page
+	   content and its scanlines, below the loader/flash so the boot sequence isn't tinted by it. */
+	.crt-overlay {
+		position: fixed;
+		inset: 0;
+		z-index: 45;
+		pointer-events: none;
+		background: radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.85) 100%),
+			linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0%, transparent 35%);
+		animation: crt-flicker 5s steps(1, jump-end) infinite;
+	}
+
+	@keyframes crt-flicker {
+		0%,
+		94% {
+			opacity: 1;
+		}
+		95% {
+			opacity: 0.75;
+		}
+		96% {
+			opacity: 1;
+		}
+		97.5% {
+			opacity: 0.85;
+		}
+		100% {
+			opacity: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.crt-overlay {
+			animation: none;
+		}
 	}
 
 	a {

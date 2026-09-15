@@ -7,8 +7,8 @@ const { lang } = Astro.props;
 const base = import.meta.env.BASE_URL;
 
 const t = lang === 'es'
-  ? { privacy: 'Privacidad', terms: 'Términos de uso', contact: 'Contacto', tag: 'SIN ADS // SIN COMPRAS // 100% OFFLINE' }
-  : { privacy: 'Privacy', terms: 'Terms of use', contact: 'Contact', tag: 'NO ADS // NO PURCHASES // 100% OFFLINE' };
+  ? { privacy: 'Privacidad', terms: 'Términos de uso', contact: 'Contacto', tag: 'SIN ADS // SIN COMPRAS // 100% OFFLINE', signature: 'Un juego de Busch.' }
+  : { privacy: 'Privacy', terms: 'Terms of use', contact: 'Contact', tag: 'NO ADS // NO PURCHASES // 100% OFFLINE', signature: 'A game by Busch.' };
 
 const prefix = lang === 'es' ? base : `${base}/en`;
 ---
@@ -17,7 +17,10 @@ const prefix = lang === 'es' ? base : `${base}/en`;
 	<div class="bar">
 		<div class="brand-block">
 			<img src={`${base}/logo.png`} alt="Infinitix" height="20" />
-			<p class="tag">© 2026 Infinitix — {t.tag}</p>
+			<div class="brand-text">
+				<p class="tag">© 2026 Infinitix — {t.tag}</p>
+				<p class="signature">{t.signature}</p>
+			</div>
 		</div>
 
 		<nav>
@@ -53,12 +56,25 @@ const prefix = lang === 'es' ? base : `${base}/en`;
 		gap: 12px;
 	}
 
+	.brand-text {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+	}
+
 	.tag {
 		margin: 0;
 		font-family: var(--font-mono);
 		font-size: 0.7rem;
 		letter-spacing: 0.06em;
 		color: var(--text-dim);
+	}
+
+	.signature {
+		margin: 0;
+		font-size: 0.7rem;
+		color: var(--text-dim);
+		opacity: 0.55;
 	}
 
 	nav {

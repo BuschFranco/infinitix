@@ -12,7 +12,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$godot = "D:\Godot\Godot_v4.7.1-stable_mono_win64_console.exe"
+$godot = "C:\Godot\Godot_v4.7.1-stable_mono_win64\Godot_v4.7.1-stable_mono_win64_console.exe"
 if (-not (Test-Path $godot)) { throw "No encuentro Godot en $godot" }
 
 # Godot debe estar cerrado: comparte el cache de importacion y los editor settings.

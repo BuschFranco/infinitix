@@ -141,6 +141,21 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.05, 0.03, 0.09, 1)
 
+[node name="DevSignature" type="Label" parent="." unique_id=3821904455]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -26.0
+offset_right = 80.0
+offset_bottom = -6.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.63, 0.35)
+theme_override_font_sizes/font_size = 11
+text = "Busch."
+
 [node name="ShipShowcase" type="Node2D" parent="."]
 script = ExtResource("13")
 
