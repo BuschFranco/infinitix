@@ -119,6 +119,46 @@ const base = import.meta.env.BASE_URL;
 			</div>
 		</section>
 
+		<section class="gallery" id="gallery">
+			<div class="section-head">
+				<div class="eyebrow label magenta">COMBAT LOG // LIVE FEED</div>
+				<h2>Screenshots</h2>
+			</div>
+
+			<div class="gallery-track">
+				<img
+					class="gallery-shot chamfer-sm glow-cyan neon-flicker-glow"
+					src={`${base}/screenshots/screenshot-5.png`}
+					alt="Infinitix main menu"
+					loading="lazy"
+				/>
+				<img
+					class="gallery-shot chamfer-sm glow-magenta neon-flicker-glow"
+					src={`${base}/screenshots/screenshot-4.png`}
+					alt="Late round with the chaos scaling up"
+					loading="lazy"
+				/>
+				<img
+					class="gallery-shot chamfer-sm glow-gold neon-flicker-glow"
+					src={`${base}/screenshots/screenshot-3.png`}
+					alt="Boss fight"
+					loading="lazy"
+				/>
+				<img
+					class="gallery-shot chamfer-sm glow-magenta neon-flicker-glow"
+					src={`${base}/screenshots/screenshot-2.png`}
+					alt="Shop screen building a loadout between rounds"
+					loading="lazy"
+				/>
+				<img
+					class="gallery-shot chamfer-sm glow-cyan neon-flicker-glow"
+					src={`${base}/screenshots/screenshot-1.png`}
+					alt="Early round dodging enemy fire"
+					loading="lazy"
+				/>
+			</div>
+		</section>
+
 		<section class="manifesto" id="manifesto">
 			<div class="panel glow-cyan">
 				<span class="corner-tag tl">// NO FINE PRINT</span>
@@ -464,6 +504,58 @@ const base = import.meta.env.BASE_URL;
 
 	.glow-gold {
 		box-shadow: 0 0 18px rgba(255, 215, 0, 0.15);
+	}
+
+	/* --- Gallery --- */
+
+	.gallery {
+		padding: 72px 0 0;
+	}
+
+	.gallery-track {
+		display: flex;
+		gap: 16px;
+		overflow-x: auto;
+		overflow-y: visible;
+		scroll-snap-type: x proximity;
+		/* Breathing room so the glow on the first/last shot isn't clipped by the scroll edge. */
+		padding: 6px 4px 20px;
+		margin: -6px -4px -20px;
+	}
+
+	.gallery-shot {
+		flex: 0 0 auto;
+		scroll-snap-align: start;
+		height: 380px;
+		width: auto;
+		aspect-ratio: 1 / 2;
+		object-fit: cover;
+		border: 1px solid rgba(0, 240, 255, 0.25);
+		background: var(--surface-low);
+		cursor: pointer;
+	}
+
+	/* Staggered so the row doesn't flicker in unison — see the trust chips' identical pattern. */
+	.gallery-shot:nth-child(2) {
+		animation-delay: 0.9s;
+	}
+
+	.gallery-shot:nth-child(3) {
+		animation-delay: 1.8s;
+	}
+
+	.gallery-shot:nth-child(4) {
+		animation-delay: 2.7s;
+	}
+
+	.gallery-shot:nth-child(5) {
+		animation-delay: 3.6s;
+	}
+
+	@media (min-width: 640px) {
+		.gallery-shot {
+			height: 460px;
+		}
 	}
 
 	/* --- Manifesto / trust badges --- */

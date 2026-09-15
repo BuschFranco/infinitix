@@ -54,19 +54,97 @@ const base = import.meta.env.BASE_URL;
 		</div>
 		<div class="crt-overlay" aria-hidden="true"></div>
 
+		<!-- Shared lightbox for any `.gallery-shot` thumbnail on the page (see the gallery section
+		     in index.astro/en/index.astro) — lives here rather than duplicated per page so the
+		     open/close logic has one source of truth across the ES/EN duplication this site already
+		     has everywhere else. Hidden by default; JS below toggles `.is-open`. -->
+		<div class="lightbox" id="lightbox">
+			<img class="lightbox-img chamfer-sm" id="lightboxImg" src="" alt="" tabindex="0" />
+			<p class="lightbox-hint label" id="lightboxHint"></p>
+		</div>
+
 		<script>
 			import Lenis from 'lenis';
 
 			// Skips the smoothing/inertia entirely for anyone who's asked their OS for reduced
 			// motion — native instant scroll for them, not a lighter version of the same effect.
 			if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-				// anchors: true makes the header's #arsenal / #manifesto links (and any other
-				// same-page hash link) glide with the same inertia as wheel/touch scrolling,
-				// instead of the browser's native instant jump. Full native frame rate — the
-				// "12 FPS arcade" convention applies to the site's decorative CSS animations
-				// (loader, hovers, flicker), not to scroll itself, which reads as broken rather
-				// than retro when throttled.
-				new Lenis({ autoRaf: true, anchors: true });
+				// Full native frame rate — the "12 FPS arcade" convention applies to the site's
+				// decorative CSS animations (loader, hovers, flicker), not to scroll itself, which
+				// reads as broken rather than retro when throttled.
+				const lenis = new Lenis({ autoRaf: true });
+
+				// Same-page hash links (header's #arsenal / #manifesto / #gallery, and any other
+				// same-page anchor) glide with the same inertia as wheel/touch scrolling instead of
+				// the browser's own instant jump. This is done by hand rather than via Lenis's own
+				// `anchors` option: that option never calls `preventDefault()` on the click, so the
+				// browser's native instant hash-jump still fires right after — landing the scroll
+				// position before Lenis's animation has a chance to run, which looks exactly like a
+				// dead link that just snaps you there. Only intercepted when the link's pathname
+				// matches the current page — a hash link to a *different* page (e.g. this same
+				// header rendered on /privacy/) still needs its real, full navigation.
+				document.addEventListener('click', (e) => {
+					const anchor = (e.target as Element).closest?.('a[href*="#"]');
+					if (!anchor) return;
+					const url = new URL(anchor.getAttribute('href') ?? '', window.location.href);
+					if (url.pathname === window.location.pathname && url.hash) {
+						e.preventDefault();
+						lenis.scrollTo(url.hash);
+					}
+				});
+			}
+
+			// Gallery lightbox: opens on click OR keyboard focus (Tab landing on a thumbnail is
+			// treated the same as a click, per how this was asked for — not the usual a11y pattern
+			// of requiring a follow-up Enter/Space), and closes on a click outside the enlarged
+			// image or on focus leaving the lightbox (Tab/Shift+Tab either direction out of it).
+			const lightbox = document.getElementById('lightbox');
+			const lightboxImg = document.getElementById('lightboxImg') as HTMLImageElement;
+			const lightboxHint = document.getElementById('lightboxHint');
+
+			if (lightbox && lightboxImg && lightboxHint) {
+				lightboxHint.textContent =
+					document.documentElement.lang === 'en'
+						? 'CLICK OR TAB OUTSIDE TO CLOSE'
+						: 'CLIC O TAB AFUERA PARA CERRAR';
+
+				const openLightbox = (thumb: HTMLImageElement) => {
+					lightboxImg.src = thumb.src;
+					lightboxImg.alt = thumb.alt;
+					lightbox.classList.add('is-open');
+					lightboxImg.focus();
+				};
+
+				// Deliberately does NOT return focus to the thumbnail that opened it: that
+				// thumbnail opens the lightbox on focus too, so refocusing it here would
+				// immediately reopen what was just closed — a focus/open/close loop. Blurring
+				// instead just drops focus back to the page.
+				const closeLightbox = () => {
+					lightbox.classList.remove('is-open');
+					lightboxImg.src = '';
+					lightboxImg.blur();
+				};
+
+				document.querySelectorAll<HTMLImageElement>('.gallery-shot').forEach((thumb) => {
+					thumb.tabIndex = 0;
+					thumb.addEventListener('click', () => openLightbox(thumb));
+					thumb.addEventListener('focus', () => openLightbox(thumb));
+				});
+
+				// Clicking the backdrop (not the image itself) closes it.
+				lightbox.addEventListener('click', (e) => {
+					if (e.target === lightbox) closeLightbox();
+				});
+
+				// Tabbing to anything outside the lightbox closes it, in either direction.
+				lightbox.addEventListener('focusout', (e) => {
+					const next = (e as FocusEvent).relatedTarget as Node | null;
+					if (!next || !lightbox.contains(next)) closeLightbox();
+				});
+
+				document.addEventListener('keydown', (e) => {
+					if (e.key === 'Escape' && lightbox.classList.contains('is-open')) closeLightbox();
+				});
 			}
 		</script>
 	</body>
@@ -151,6 +229,38 @@ const base = import.meta.env.BASE_URL;
 		font-family: var(--font-display);
 		line-height: 1.6;
 		position: relative;
+	}
+
+	/* Themed scrollbar: the OS-default gray bar reads jarringly against the neon/chrome design
+	   system, so every scrollable surface on the site (the page itself, plus any element that
+	   scrolls internally, like the gallery's horizontal track) gets this cyan-on-void treatment
+	   instead. Firefox uses the `scrollbar-*` properties; Chromium/WebKit use the pseudo-elements
+	   below — both are declared so the look is consistent across browsers. */
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--cyan-dim) var(--surface-lowest);
+	}
+
+	*::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
+
+	*::-webkit-scrollbar-track {
+		background: var(--surface-lowest);
+	}
+
+	*::-webkit-scrollbar-thumb {
+		background: var(--cyan-dim);
+		border: 2px solid var(--surface-lowest);
+	}
+
+	*::-webkit-scrollbar-thumb:hover {
+		background: var(--cyan);
+	}
+
+	*::-webkit-scrollbar-corner {
+		background: var(--surface-lowest);
 	}
 
 	/* Every animation on this site (this loader included) uses CSS steps() instead of eased
@@ -427,6 +537,41 @@ const base = import.meta.env.BASE_URL;
 		.crt-overlay {
 			animation: none;
 		}
+	}
+
+	/* --- Gallery lightbox --- */
+
+	.lightbox {
+		position: fixed;
+		inset: 0;
+		z-index: 80;
+		display: none;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 14px;
+		padding: 24px;
+		background: rgba(5, 3, 15, 0.92);
+	}
+
+	.lightbox.is-open {
+		display: flex;
+	}
+
+	.lightbox-img {
+		max-width: min(90vw, 520px);
+		max-height: 80vh;
+		width: auto;
+		height: auto;
+		object-fit: contain;
+		border: 2px solid var(--cyan);
+		box-shadow: 0 0 40px rgba(0, 240, 255, 0.4);
+		outline: none;
+	}
+
+	.lightbox-hint {
+		color: var(--cyan-dim);
+		letter-spacing: 0.08em;
 	}
 
 	a {

@@ -10,8 +10,8 @@ const base = import.meta.env.BASE_URL;
 const home = lang === 'es' ? `${base}/` : `${base}/en/`;
 
 const t = lang === 'es'
-  ? { arsenal: 'ARSENAL', manifesto: 'MANIFIESTO' }
-  : { arsenal: 'ARSENAL', manifesto: 'MANIFESTO' };
+  ? { arsenal: 'ARSENAL', gallery: 'JUEGO', manifesto: 'MANIFIESTO' }
+  : { arsenal: 'ARSENAL', gallery: 'GAME', manifesto: 'MANIFESTO' };
 ---
 
 <header>
@@ -22,6 +22,7 @@ const t = lang === 'es'
 
 		<nav class="section-links">
 			<a href={`${home}#arsenal`}>{t.arsenal}</a>
+			<a href={`${home}#gallery`}>{t.gallery}</a>
 			<a href={`${home}#manifesto`}>{t.manifesto}</a>
 		</nav>
 
