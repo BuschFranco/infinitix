@@ -120,6 +120,40 @@ min_value = 800
 max_value = 2400
 value = 2000
 
+[node name="OpacitySpacer" type="Control" parent="CenterContainer/HBox/Panel/Scroll/VBoxContainer"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+
+[node name="JoystickLabel" type="Label" parent="CenterContainer/HBox/Panel/Scroll/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.6, 0.64, 0.72, 1)
+text = "Opacidad del joystick: 100%"
+
+[node name="JoystickSlider" type="HSlider" parent="CenterContainer/HBox/Panel/Scroll/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+max_value = 100.0
+step = 5.0
+value = 100
+
+[node name="UltimateSpacer" type="Control" parent="CenterContainer/HBox/Panel/Scroll/VBoxContainer"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+
+[node name="UltimateButtonLabel" type="Label" parent="CenterContainer/HBox/Panel/Scroll/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.6, 0.64, 0.72, 1)
+text = "Opacidad del botón Ultimate: 100%"
+
+[node name="UltimateButtonSlider" type="HSlider" parent="CenterContainer/HBox/Panel/Scroll/VBoxContainer"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+max_value = 100.0
+step = 5.0
+value = 100
+
 [node name="LoadoutMenu" parent="CenterContainer/HBox" instance=ExtResource("2")]
 h_separation = 24
 v_separation = 4

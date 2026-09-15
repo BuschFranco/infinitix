@@ -63,6 +63,14 @@ public partial class CharacterSelectMenu : Control
         RebuildOrder(GameManager.Instance.SelectedCharacter);
         Juice.ModalIn(_panel);
         Visible = true;
+
+        GameManager.Instance?.PushBackHandler(this, Close);
+    }
+
+    private void Close()
+    {
+        GameManager.Instance?.PopBackHandler(this);
+        Juice.ModalOut(_panel, () => Visible = false);
     }
 
     public override void _Ready()
@@ -102,7 +110,8 @@ public partial class CharacterSelectMenu : Control
         createButton.Pressed += () => _creator.Open();
         _deleteButton.Pressed += DeleteFramed;
         _confirmButton.Pressed += Confirm;
-        cancelButton.Pressed += () => Juice.ModalOut(_panel, () => Visible = false);
+        cancelButton.Pressed += Close;
+        UIUtil.WireDimToClose(GetNode<Control>("Dim"), Close);
 
         foreach (var b in new[] { leftButton, rightButton, createButton, _deleteButton, _confirmButton, cancelButton })
             Juice.WireButtonFeedback(b);
@@ -359,6 +368,7 @@ public partial class CharacterSelectMenu : Control
         if (!CharacterCatalog.IsUnlocked(info)) return;   // Confirm is hidden while locked; this is just defense in depth
 
         GameManager.Instance.SetSelectedCharacter(info.Slug);
+        GameManager.Instance.PopBackHandler(this);
         GetTree().ChangeSceneToFile("res://Scenes/Arena.tscn");
     }
 }

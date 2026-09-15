@@ -41,6 +41,7 @@ public partial class GameOverStatsMenu : Control
 
         _closeButton.Pressed += Close;
         Juice.WireButtonFeedback(_closeButton);
+        UIUtil.WireDimToClose(GetNode<Control>("Dim"), Close);
 
         // One height for both columns, derived from the live viewport rather than a landscape/portrait
         // pair of constants. They stay equal on purpose (see above); only where the number comes from
@@ -65,7 +66,13 @@ public partial class GameOverStatsMenu : Control
 
         Visible = true;
         Juice.ModalIn(_hbox);
+
+        GameManager.Instance?.PushBackHandler(this, Close);
     }
 
-    private void Close() => Juice.ModalOut(_hbox, () => Visible = false);
+    private void Close()
+    {
+        GameManager.Instance?.PopBackHandler(this);
+        Juice.ModalOut(_hbox, () => Visible = false);
+    }
 }

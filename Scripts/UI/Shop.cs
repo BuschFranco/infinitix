@@ -139,6 +139,11 @@ public partial class Shop : Control
         Visible = true;
         Juice.ModalIn(_panel);
 
+        // A no-op, not a Close — this is a mandatory round-transition step, not a screen with a
+        // "cancel". Pushing an empty handler still means back gets absorbed here instead of falling
+        // through to some contextually wrong action (like reopening Pause) while the shop is up.
+        GameManager.Instance?.PushBackHandler(this, () => { });
+
         CheckAutoAdvance();
     }
 
@@ -457,6 +462,7 @@ public partial class Shop : Control
         if (!Visible || _advancing) return;
         _advancing = true;
 
+        GameManager.Instance.PopBackHandler(this);
         Juice.ModalOut(_panel, () => Visible = false);
         GameManager.Instance.StartNextRound();
     }

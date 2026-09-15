@@ -14,11 +14,13 @@ public partial class MainMenu : Control
         var buildsButton = GetNode<Button>("VBoxContainer/ButtonsRow/BuildsButton");
         var tiendaButton = GetNode<Button>("VBoxContainer/ButtonsRow/TiendaButton");
 
-        // HBoxContainer/VBoxContainer are both just BoxContainer with its Vertical flag preset —
-        // still settable at runtime on either, so the same four buttons can stack in portrait
-        // instead of squeezing into a row barely wider than the 648px portrait viewport (170+150*3
-        // plus separation is ~650px, right at the edge). Landscape's 1152px keeps the row as-is.
-        var buttonsRow = GetNode<HBoxContainer>("VBoxContainer/ButtonsRow");
+        // Typed (and scened) as the base BoxContainer, not HBoxContainer — Godot 4 hard-locks
+        // HBoxContainer/VBoxContainer's orientation at construction and silently rejects (with an
+        // error log) any later attempt to flip it, so toggling Vertical only actually works on the
+        // unspecialized base class. This lets the same four buttons stack in portrait instead of
+        // squeezing into a row barely wider than the 648px portrait viewport (170+150*3 plus
+        // separation is ~650px, right at the edge). Landscape's 1152px keeps the row as-is.
+        var buttonsRow = GetNode<BoxContainer>("VBoxContainer/ButtonsRow");
 
         void ApplyButtonsRowLayout()
         {

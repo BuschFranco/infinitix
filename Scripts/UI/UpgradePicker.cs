@@ -126,6 +126,10 @@ public partial class UpgradePicker : Control
 
         for (int i = 0; i < _cards.Count; i++)
             _cards[i].PlayAppearFlare(i * 0.08f);
+
+        // A no-op, not a Close — picking a reward is mandatory, there's no "cancel" here. Absorbs
+        // back instead of letting it fall through to something contextually wrong while this is up.
+        GameManager.Instance?.PushBackHandler(this, () => { });
     }
 
     private static bool AllChoicesUseless(Player player, List<UpgradeData> choices)
@@ -182,6 +186,7 @@ public partial class UpgradePicker : Control
         // apply two upgrades from one level-up.
         if (_resolving) return;
         _resolving = true;
+        GameManager.Instance?.PopBackHandler(this);
 
         var chosen = _currentChoices[index];
         Visible = false;

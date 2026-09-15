@@ -33,6 +33,7 @@ public partial class CharacterCreator : Control
         imageButton.Pressed += OnImageButtonPressed;
         _saveButton.Pressed += Save;
         cancelButton.Pressed += Close;
+        UIUtil.WireDimToClose(GetNode<Control>("Dim"), Close);
 
         foreach (var b in new[] { imageButton, _saveButton, cancelButton })
             Juice.WireButtonFeedback(b);
@@ -71,9 +72,15 @@ public partial class CharacterCreator : Control
         Visible = true;
         Juice.ModalIn(_panel);
         _nameEdit.GrabFocus();
+
+        GameManager.Instance?.PushBackHandler(this, Close);
     }
 
-    private void Close() => Juice.ModalOut(_panel, () => Visible = false);
+    private void Close()
+    {
+        GameManager.Instance?.PopBackHandler(this);
+        Juice.ModalOut(_panel, () => Visible = false);
+    }
 
     private void OnImageButtonPressed()
     {

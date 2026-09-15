@@ -12,6 +12,10 @@ public partial class PauseMenu : Control
     private Label _cameraDistanceLabel;
     private HSlider _masterVolumeSlider;
     private Label _masterVolumeLabel;
+    private HSlider _joystickSlider;
+    private Label _joystickLabel;
+    private HSlider _ultimateButtonSlider;
+    private Label _ultimateButtonLabel;
     private Label _resumeCountdownLabel;
     private Control _hbox;
 
@@ -36,6 +40,10 @@ public partial class PauseMenu : Control
         _cameraDistanceLabel = GetNode<Label>("CenterContainer/HBox/Panel/Scroll/VBoxContainer/CameraDistanceLabel");
         _masterVolumeSlider = GetNode<HSlider>("CenterContainer/HBox/Panel/Scroll/VBoxContainer/MasterVolumeSlider");
         _masterVolumeLabel = GetNode<Label>("CenterContainer/HBox/Panel/Scroll/VBoxContainer/MasterVolumeLabel");
+        _joystickSlider = GetNode<HSlider>("CenterContainer/HBox/Panel/Scroll/VBoxContainer/JoystickSlider");
+        _joystickLabel = GetNode<Label>("CenterContainer/HBox/Panel/Scroll/VBoxContainer/JoystickLabel");
+        _ultimateButtonSlider = GetNode<HSlider>("CenterContainer/HBox/Panel/Scroll/VBoxContainer/UltimateButtonSlider");
+        _ultimateButtonLabel = GetNode<Label>("CenterContainer/HBox/Panel/Scroll/VBoxContainer/UltimateButtonLabel");
         _pausePanel = GetNode<PanelContainer>("CenterContainer/HBox/Panel");
         _scroll = GetNode<ScrollContainer>("CenterContainer/HBox/Panel/Scroll");
         _loadoutMenu = GetNode<LoadoutMenu>("CenterContainer/HBox/LoadoutMenu");
@@ -51,6 +59,8 @@ public partial class PauseMenu : Control
         _menuButton.Pressed += OnMenuPressed;
         _cameraDistanceSlider.ValueChanged += OnCameraDistanceChanged;
         _masterVolumeSlider.ValueChanged += OnMasterVolumeChanged;
+        _joystickSlider.ValueChanged += OnJoystickOpacityChanged;
+        _ultimateButtonSlider.ValueChanged += OnUltimateButtonOpacityChanged;
         Juice.WireButtonFeedback(_resumeButton);
         Juice.WireButtonFeedback(_menuButton);
 
@@ -93,6 +103,12 @@ public partial class PauseMenu : Control
         UpdateCameraDistanceLabel(gm.CameraDistance);
         _masterVolumeSlider.SetValueNoSignal(Mathf.Round(gm.MasterVolume * 100f));
         UpdateMasterVolumeLabel(_masterVolumeSlider.Value);
+
+        _joystickSlider.SetValueNoSignal(Mathf.Round(gm.JoystickOpacity * 100f));
+        UpdateJoystickLabel(_joystickSlider.Value);
+        _ultimateButtonSlider.SetValueNoSignal(Mathf.Round(gm.UltimateButtonOpacity * 100f));
+        UpdateUltimateButtonLabel(_ultimateButtonSlider.Value);
+
         _loadoutMenu.Refresh(player);
 
         // Defensive reset: Visible only ever goes false once the countdown below completes, so this
@@ -105,6 +121,10 @@ public partial class PauseMenu : Control
 
         Visible = true;
         Juice.ModalIn(_hbox);
+
+        // Back means the same thing "Reanudar" does here, countdown and all — resuming already has a
+        // deliberate 3s anti-mistoque delay, and back shouldn't be a way to skip it.
+        GameManager.Instance?.PushBackHandler(this, OnResumePressed);
     }
 
     public override void _Process(double delta)
@@ -119,6 +139,7 @@ public partial class PauseMenu : Control
             _resumeButton.Disabled = false;
             _menuButton.Disabled = false;
             Visible = false;
+            GameManager.Instance.PopBackHandler(this);
             GameManager.Instance.ResumeAfterPause();
             return;
         }
@@ -183,6 +204,7 @@ public partial class PauseMenu : Control
 
     private void AbandonToMenu()
     {
+        GameManager.Instance.PopBackHandler(this);
         GameManager.Instance.AbandonRun();
         GetTree().ChangeSceneToFile("res://Scenes/UI/MainMenu.tscn");
     }
@@ -213,4 +235,25 @@ public partial class PauseMenu : Control
 
     private void UpdateMasterVolumeLabel(double value) =>
         _masterVolumeLabel.Text = $"Volumen general: {value:0}%";
+
+    // Same settings as OptionsMenu's joystick/Ultimate-button opacity sliders — surfaced here too so
+    // adjusting them doesn't require abandoning the run to reach the main menu's Options, same
+    // reasoning as the master volume slider right above.
+    private void OnJoystickOpacityChanged(double value)
+    {
+        GameManager.Instance?.SetJoystickOpacity((float)value / 100f);
+        UpdateJoystickLabel(value);
+    }
+
+    private void UpdateJoystickLabel(double value) =>
+        _joystickLabel.Text = $"Opacidad del joystick: {value:0}%";
+
+    private void OnUltimateButtonOpacityChanged(double value)
+    {
+        GameManager.Instance?.SetUltimateButtonOpacity((float)value / 100f);
+        UpdateUltimateButtonLabel(value);
+    }
+
+    private void UpdateUltimateButtonLabel(double value) =>
+        _ultimateButtonLabel.Text = $"Opacidad del botón Ultimate: {value:0}%";
 }

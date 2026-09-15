@@ -569,6 +569,68 @@ public partial class GameManager : Node
         Pause();
     }
 
+    // --- Android back button ----------------------------------------------------------------------
+    //
+    // Every modal that can be open pushes "what back should do" here on Open() and pops it on
+    // Close() — a stack, not a single slot, because modals genuinely nest today (ConfirmDialog opens
+    // on top of PauseMenu/GameOverScreen without hiding them; CharacterCreator opens on top of
+    // CharacterSelectMenu the same way) and back has to peel off only the top one.
+    //
+    // No attempt is made to guarantee every push is popped on every exit path (a scene reload, an
+    // abandoned run) — HandleBackPressed already skips any entry whose owner got freed without
+    // popping, so a missed pop is inert rather than a crash. See docs/navigation.md.
+    private readonly List<(Node Owner, Action Handler)> _backStack = new();
+
+    public void PushBackHandler(Node owner, Action handler) => _backStack.Add((owner, handler));
+
+    public void PopBackHandler(Node owner)
+    {
+        for (int i = _backStack.Count - 1; i >= 0; i--)
+        {
+            if (_backStack[i].Owner != owner) continue;
+            _backStack.RemoveAt(i);
+            return;
+        }
+    }
+
+    public override void _Notification(int what)
+    {
+        if (what == NotificationWMGoBackRequest) HandleBackPressed();
+    }
+
+    private void HandleBackPressed()
+    {
+        while (_backStack.Count > 0)
+        {
+            var (owner, handler) = _backStack[^1];
+            _backStack.RemoveAt(_backStack.Count - 1);
+
+            // The owner closed through some other path (scene reload, abandoning the run) without
+            // popping itself first — stale, skip it rather than call into a freed node.
+            if (!IsInstanceValid(owner)) continue;
+
+            handler();
+            return;
+        }
+
+        HandleBackWithNothingOpen();
+    }
+
+    // Nothing was open to close, so back needs a contextual meaning of its own: mid-run, the same
+    // thing the pause button does; at the main menu, the one place back can still mean "quit" now
+    // that quit_on_go_back is off project-wide (see project.godot).
+    private void HandleBackWithNothingOpen()
+    {
+        if (GetTree().CurrentScene?.SceneFilePath == "res://Scenes/Arena.tscn")
+        {
+            OpenPauseMenu();
+            return;
+        }
+
+        var dialog = GetTree().GetFirstNodeInGroup("confirm_dialog") as ConfirmDialog;
+        dialog?.Ask("¿Salir del juego?", "Se va a cerrar la aplicación.", "Salir", () => GetTree().Quit());
+    }
+
     public void UpdateCameraExtents()
     {
         if (GetTree().GetFirstNodeInGroup("camera_rig") is CameraRig camera)

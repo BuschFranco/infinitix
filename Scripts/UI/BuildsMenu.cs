@@ -8,9 +8,15 @@ public partial class BuildsMenu : Control
     {
         Visible = true;
         Juice.ModalIn(_panel);
+
+        GameManager.Instance?.PushBackHandler(this, Close);
     }
 
-    private void Close() => Juice.ModalOut(_panel, () => Visible = false);
+    private void Close()
+    {
+        GameManager.Instance?.PopBackHandler(this);
+        Juice.ModalOut(_panel, () => Visible = false);
+    }
 
     public override void _Ready()
     {
@@ -21,10 +27,9 @@ public partial class BuildsMenu : Control
         var closeButton = GetNode<Button>("CenterContainer/Panel/Box/CloseButton");
         closeButton.Pressed += Close;
         Juice.WireButtonFeedback(closeButton);
-        GetNode<Control>("Dim").GuiInput += e =>
-        {
-            if (e is InputEventMouseButton m && m.Pressed) Close();
-        };
+        // Was mouse-button-only, which InputEventScreenTouch (real touch on Android) never raises —
+        // WireDimToClose also catches that.
+        UIUtil.WireDimToClose(GetNode<Control>("Dim"), Close);
         Populate();
     }
 

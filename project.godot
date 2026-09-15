@@ -12,11 +12,12 @@ config_version=5
 
 config/name="Infinitix"
 run/main_scene="res://Scenes/UI/MainMenu.tscn"
+config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "C#", "Mobile")
 boot_splash/bg_color=Color(0.043, 0.024, 0.078, 1)
-boot_splash/image="res://Assets/Splash/BootSplash.png"
-boot_splash/fullsize=false
+boot_splash/stretch_mode=0
 boot_splash/use_filter=false
+boot_splash/image="res://Assets/Splash/BootSplash.png"
 config/icon="res://Assets/Branding/app_icon.png"
 
 [autoload]

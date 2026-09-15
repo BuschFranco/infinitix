@@ -102,4 +102,25 @@ public static class UIUtil
         scroll.CustomMinimumSize = new Vector2(
             scroll.CustomMinimumSize.X, Mathf.Max(minHeight, Mathf.Min(needed, available)));
     }
+
+    // --- Tap outside to close --------------------------------------------------------------------
+    //
+    // Every modal's Dim (a full-rect ColorRect behind the panel) already blocks clicks from passing
+    // through to whatever's underneath — that's Control's default mouse_filter (Stop), untouched in
+    // every .tscn — but nothing ever listened on it, so tapping the dimmed backdrop today just does
+    // nothing. This makes it act like the screen's own Close.
+
+    /// <summary>Tapping/clicking <paramref name="dim"/> calls <paramref name="close"/> — wire this to
+    /// a screen's "Dim" node and its own Close() so backing out doesn't require finding the button.
+    /// Not every screen should get this (a forced choice like the reward picker shouldn't be
+    /// dismissible by tapping past it) — see docs/navigation.md for which ones do.</summary>
+    public static void WireDimToClose(Control dim, Action close)
+    {
+        dim.GuiInput += @event =>
+        {
+            if (@event is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left }
+                or InputEventScreenTouch { Pressed: true })
+                close();
+        };
+    }
 }

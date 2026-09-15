@@ -57,6 +57,7 @@ public partial class OptionsMenu : Control
 
         _panel = GetNode<PanelContainer>("CenterContainer/Panel");
         _scroll = GetNode<ScrollContainer>("CenterContainer/Panel/Scroll");
+        UIUtil.WireDimToClose(GetNode<Control>("Dim"), Close);
         var title = GetNode<Label>("CenterContainer/Panel/Scroll/Box/Title");
         UIUtil.AddSpeedLines(title.GetParent<Control>(), title.GetIndex());
         _joystickLabel = GetNode<Label>("CenterContainer/Panel/Scroll/Box/JoystickLabel");
@@ -115,6 +116,13 @@ public partial class OptionsMenu : Control
             GameManager.Instance?.SetOrientation(GameManager.ScreenOrientation.Portrait);
             FitToOrientation();
         };
+
+        // Belt-and-suspenders for the toggles above: DisplayServer.ScreenSetOrientation (inside
+        // SetOrientation) doesn't necessarily land the same frame it's requested, so the FitToOrientation
+        // call right after it can race the real resize and compute against the stale viewport size —
+        // this is what "Volver" went unreachable behind. Whenever the resize actually lands, however
+        // many frames later, this recomputes for real.
+        GetTree().Root.SizeChanged += FitToOrientation;
 
         FitToOrientation();
     }
@@ -223,9 +231,15 @@ public partial class OptionsMenu : Control
 
         Visible = true;
         Juice.ModalIn(_panel);
+
+        GameManager.Instance?.PushBackHandler(this, Close);
     }
 
-    private void Close() => Juice.ModalOut(_panel, () => Visible = false);
+    private void Close()
+    {
+        GameManager.Instance?.PopBackHandler(this);
+        Juice.ModalOut(_panel, () => Visible = false);
+    }
 
     // A toggle rather than a slider: it's a binary preference, and toggle_mode gives it a pressed
     // StyleBox that reads as "on" without needing a separate checkbox widget the project doesn't

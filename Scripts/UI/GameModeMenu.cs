@@ -32,15 +32,23 @@ public partial class GameModeMenu : Control
 
         _classicButton.Pressed += () => SelectMode(GameManager.GameMode.Classic);
         _hardcoreButton.Pressed += () => SelectMode(GameManager.GameMode.Hardcore);
-        _cancelButton.Pressed += () => Juice.ModalOut(_panel, () => Visible = false);
+        _cancelButton.Pressed += Close;
+        UIUtil.WireDimToClose(GetNode<Control>("Dim"), Close);
 
         foreach (var b in new[] { _classicButton, _hardcoreButton, _cancelButton })
             Juice.WireButtonFeedback(b);
     }
 
+    private void Close()
+    {
+        GameManager.Instance?.PopBackHandler(this);
+        Juice.ModalOut(_panel, () => Visible = false);
+    }
+
     private void SelectMode(GameManager.GameMode mode)
     {
         GameManager.Instance.SetGameMode(mode);
+        GameManager.Instance.PopBackHandler(this);
 
         // sound: false -- this isn't a cancel/close, it's a straight handoff into CharacterSelectMenu,
         // which plays its own modal-in sound a moment later. Without this, picking a mode fires three
@@ -79,5 +87,7 @@ public partial class GameModeMenu : Control
         RefreshHighlight();
         Visible = true;
         Juice.ModalIn(_panel);
+
+        GameManager.Instance?.PushBackHandler(this, Close);
     }
 }

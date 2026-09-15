@@ -69,6 +69,8 @@ public partial class CosmeticsShopMenu : Control
         var title = GetNode<Label>("CenterContainer/Panel/Scroll/Box/Title");
         UIUtil.AddSpeedLines(title.GetParent<Control>(), title.GetIndex());
 
+        UIUtil.WireDimToClose(GetNode<Control>("Dim"), Close);
+
         BuildTabs();
         BuildPaletteArea();
 
@@ -483,7 +485,13 @@ public partial class CosmeticsShopMenu : Control
 
         Visible = true;
         Juice.ModalIn(_panel);
+
+        GameManager.Instance?.PushBackHandler(this, Close);
     }
 
-    private void Close() => Juice.ModalOut(_panel, () => Visible = false);
+    private void Close()
+    {
+        GameManager.Instance?.PopBackHandler(this);
+        Juice.ModalOut(_panel, () => Visible = false);
+    }
 }

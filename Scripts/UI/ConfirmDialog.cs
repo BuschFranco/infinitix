@@ -41,6 +41,10 @@ public partial class ConfirmDialog : Control
         _cancelButton.Pressed += Close;
         Juice.WireButtonFeedback(_confirmButton);
         Juice.WireButtonFeedback(_cancelButton);
+
+        // Tapping outside cancels — never confirms the destructive action just because the player
+        // tried to tap past the dialog.
+        UIUtil.WireDimToClose(GetNode<Control>("Dim"), Close);
     }
 
     // confirmVerb names the actual outcome ("Abandonar", "Borrar") rather than a generic "Sí", so the
@@ -58,6 +62,8 @@ public partial class ConfirmDialog : Control
         // Cancel takes focus, not confirm: a stray keyboard/gamepad Enter should land on the harmless
         // option, and the destructive one should require actually aiming at it.
         _cancelButton.GrabFocus();
+
+        GameManager.Instance?.PushBackHandler(this, Close);
     }
 
     private void OnConfirmPressed()
@@ -69,12 +75,17 @@ public partial class ConfirmDialog : Control
         // thing that survives testing and breaks later.
         _onConfirm = null;
         Visible = false;
+        GameManager.Instance?.PopBackHandler(this);
         action?.Invoke();
     }
 
-    private void Close() => Juice.ModalOut(_panel, () =>
+    private void Close()
     {
-        Visible = false;
-        _onConfirm = null;
-    });
+        GameManager.Instance?.PopBackHandler(this);
+        Juice.ModalOut(_panel, () =>
+        {
+            Visible = false;
+            _onConfirm = null;
+        });
+    }
 }

@@ -280,7 +280,7 @@ text = "Todavía no hay récords"
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 
-[node name="ButtonsRow" type="HBoxContainer" parent="VBoxContainer" unique_id=229558840]
+[node name="ButtonsRow" type="BoxContainer" parent="VBoxContainer" unique_id=229558840]
 layout_mode = 2
 theme_override_constants/separation = 10
 alignment = 1
