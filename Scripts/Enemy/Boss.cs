@@ -61,8 +61,25 @@ public partial class Boss : ShooterEnemy
     private static readonly Texture2D CoworkerPortrait = GD.Load<Texture2D>("res://Assets/Sprites/Characters/conrado.png");
     private static readonly Vector2 CoworkerPortraitScale = new(0.7f, 0.7f);
 
+    // Past round 5 the player's own build outpaces the boss (see EnemySpawner's shared HpMultCurve,
+    // which trash mobs get too) enough that boss fights stop being a real threat. From round 10 on,
+    // the boss additionally gets tougher, rolls more of its attack pool at once, and its two direct
+    // hits start costing 2 hearts instead of 1 — see below, HeavyHitCost and ComputeAbilityCount.
+    private const int HeavyScalingStartRound = 10;
+
+    // Extra multiplier ON TOP OF the curve EnemySpawner already applies to every enemy alike — 1x
+    // (no-op) before round 10, growing to a 3x extra by round 24+.
+    private static readonly RoundCurve BossLateHpCurve = new(1f, 0.15f, 1f, 3f);
+
     public override void _Ready()
     {
+        // Before base._Ready(): that's where Enemy._Ready sets CurrentHp = MaxHp, same ordering
+        // requirement as the coworker-portrait swap below — anything that touches MaxHp has to land
+        // before it, or the boss ends up under-healed relative to its own max.
+        int round = GameManager.Instance?.RoundNumber ?? 1;
+        if (round >= HeavyScalingStartRound)
+            MaxHp = Mathf.RoundToInt(MaxHp * BossLateHpCurve.Evaluate(round - HeavyScalingStartRound + 1));
+
         // Has to happen BEFORE base._Ready(): that's where Enemy caches _visualBaseScale from
         // Visual's current Scale (used to reset the sprite's size after every telegraph/spawn
         // animation). Swapping the texture/scale afterward left that cache pointing at the scene's
@@ -301,7 +318,6 @@ public partial class Boss : ShooterEnemy
     // at once, which is what keeps every telegraph readable.
     private enum AttackAbility { FanBarrage, MeteorRain, ShockwaveRing, MineDrop, SummonAdds, SpinLaser }
 
-    private const int AbilityCount = 2;
     private const float AbilityInitialDelayBase = 3.5f;
     private const float AbilityInitialDelayStagger = 2.5f;
     private const float AbilityRetryDelay = 0.6f;
@@ -342,6 +358,14 @@ public partial class Boss : ShooterEnemy
     private readonly Dictionary<AttackAbility, Timer> _abilityTimers = new();
     private bool _channeling;
 
+    // Baseline 2, same as always, up to round 9. From round 10 on, one more slot opens every 5
+    // rounds (10, 15, 20...) — the same cadence as boss rounds themselves — capped at the full pool
+    // so a round-25+ boss just runs every ability it has.
+    private static int ComputeAbilityCount(int round) =>
+        round < HeavyScalingStartRound
+            ? 2
+            : Mathf.Min(AllAbilities.Length, 2 + (round - HeavyScalingStartRound) / 5 + 1);
+
     private void RollAbilities()
     {
         var pool = new List<AttackAbility>(AllAbilities);
@@ -351,7 +375,9 @@ public partial class Boss : ShooterEnemy
             (pool[i], pool[j]) = (pool[j], pool[i]);
         }
 
-        for (int i = 0; i < Mathf.Min(AbilityCount, pool.Count); i++)
+        int round = GameManager.Instance?.RoundNumber ?? 1;
+        int count = ComputeAbilityCount(round);
+        for (int i = 0; i < Mathf.Min(count, pool.Count); i++)
             ActivateAbility(pool[i], AbilityInitialDelayBase + i * AbilityInitialDelayStagger);
     }
 
@@ -475,12 +501,18 @@ public partial class Boss : ShooterEnemy
     // undodgeable once it pops.
     private const float ShockwaveRadius = 190f;
 
+    // Round-10+ punish for the two abilities that hit the player directly rather than through a
+    // dodgeable projectile/hazard — both already carry a long, readable telegraph, so making them
+    // cost more keeps the boss dangerous without punishing a hit the player had no way to see coming.
+    private int HeavyHitCost() =>
+        (GameManager.Instance?.RoundNumber ?? 1) >= HeavyScalingStartRound ? 2 : 1;
+
     private void ExecuteShockwaveRing()
     {
         if (EnsurePlayer() && GlobalPosition.DistanceTo(PlayerNode.GlobalPosition) <= ShockwaveRadius
             && PlayerNode is Player player)
         {
-            player.TakeHit(GlobalPosition);
+            player.TakeHit(GlobalPosition, forcedCost: HeavyHitCost());
         }
 
         SpawnShockwaveVisual();
@@ -592,7 +624,7 @@ public partial class Boss : ShooterEnemy
                 if (Mathf.Abs(diff) <= Mathf.DegToRad(SpinLaserHitToleranceDegrees) && PlayerNode is Player player)
                 {
                     _spinLaserHitPlayer = true;
-                    player.TakeHit(GlobalPosition);
+                    player.TakeHit(GlobalPosition, forcedCost: HeavyHitCost());
                 }
             }
         }

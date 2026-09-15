@@ -15,6 +15,7 @@ public abstract partial class PickupBase : Area2D
     private const float MagnetMaxSpeed = 640f;
 
     private Polygon2D _visual;
+    private Polygon2D _aura;
     private float _age;
     private float _magnetSpeed;
     private Player _player;
@@ -23,6 +24,9 @@ public abstract partial class PickupBase : Area2D
     {
         AddToGroup("pickups");
         _visual = GetNodeOrNull<Polygon2D>("Visual");
+        // Opt-in per scene, not every pickup has one (currently only HeartPickup.tscn) — GetNodeOrNull
+        // just no-ops for the rest.
+        _aura = GetNodeOrNull<Polygon2D>("Aura");
         _player = GetTree().GetFirstNodeInGroup("player") as Player;
         BodyEntered += OnBodyEntered;
     }
@@ -48,6 +52,11 @@ public abstract partial class PickupBase : Area2D
         // Gentle pulse so a stationary drop still reads as "alive" and worth noticing.
         if (_visual != null)
             _visual.Scale = Vector2.One * (1f + Mathf.Sin(_age * PulseSpeed) * 0.12f);
+
+        // Bigger base scale and a wider swing than the visual itself, so the aura breathes behind it
+        // rather than just scaling in lockstep like a second, identical heart.
+        if (_aura != null)
+            _aura.Scale = Vector2.One * (1.6f + Mathf.Sin(_age * PulseSpeed) * 0.15f);
 
         if (_age > Lifetime - 1f)
             Modulate = new Color(1f, 1f, 1f, Lifetime - _age);

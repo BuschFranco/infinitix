@@ -918,7 +918,10 @@ public partial class Player : CharacterBody2D
             TakeHit(enemy.GlobalPosition);
     }
 
-    public void TakeHit(Vector2? sourcePosition = null)
+    // forcedCost lets a caller spend a specific number of shield/life points on this hit instead of
+    // the usual ComputeHitCost() roll — e.g. Boss.cs's round-10+ heavy attacks, which are meant to
+    // cost 2 hearts outright rather than relying on the probabilistic survivability catch-up path.
+    public void TakeHit(Vector2? sourcePosition = null, int forcedCost = 0)
     {
         if (_invulnTimer > 0f) return;
 
@@ -979,7 +982,7 @@ public partial class Player : CharacterBody2D
         // DifficultyBalancer's survivability catch-up kicks in — the counter-pressure for a build
         // that dodge/Tank/shield have made nearly unkillable, since raising enemy damage can't touch
         // that (every hit in this game costs a flat life/shield charge, never a variable amount).
-        int cost = ComputeHitCost();
+        int cost = forcedCost > 0 ? forcedCost : ComputeHitCost();
         bool shieldAbsorbed = false;
         bool lifeLost = false;
         for (int i = 0; i < cost; i++)
