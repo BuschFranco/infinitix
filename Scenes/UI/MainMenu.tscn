@@ -45,6 +45,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.4902, 0.9922, 0.9961, 0.4)
+shadow_color = Color(0.4902, 0.9922, 0.9961, 0.3)
+shadow_size = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
 bg_color = Color(0.102, 0.0588, 0.1686, 0.9)
@@ -53,6 +55,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.4902, 0.9922, 0.9961, 0.8)
+shadow_color = Color(0.4902, 0.9922, 0.9961, 0.6)
+shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_magenta"]
 bg_color = Color(0.102, 0.0588, 0.1686, 0.75)
@@ -61,6 +65,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 0.31, 0.847, 0.5)
+shadow_color = Color(1, 0.31, 0.847, 0.3)
+shadow_size = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_magenta_hover"]
 bg_color = Color(0.102, 0.0588, 0.1686, 0.9)
@@ -69,6 +75,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 0.31, 0.847, 0.85)
+shadow_color = Color(1, 0.31, 0.847, 0.6)
+shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_violet"]
 bg_color = Color(0.102, 0.0588, 0.1686, 0.75)
@@ -77,6 +85,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.7765, 0.3569, 1, 0.5)
+shadow_color = Color(0.7765, 0.3569, 1, 0.3)
+shadow_size = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_violet_hover"]
 bg_color = Color(0.102, 0.0588, 0.1686, 0.9)
@@ -85,6 +95,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.7765, 0.3569, 1, 0.85)
+shadow_color = Color(0.7765, 0.3569, 1, 0.6)
+shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_gold"]
 bg_color = Color(0.102, 0.0588, 0.1686, 0.75)
@@ -93,6 +105,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 0.878, 0.4, 0.5)
+shadow_color = Color(1, 0.878, 0.4, 0.3)
+shadow_size = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_gold_hover"]
 bg_color = Color(0.102, 0.0588, 0.1686, 0.9)
@@ -101,6 +115,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 0.878, 0.4, 0.85)
+shadow_color = Color(1, 0.878, 0.4, 0.6)
+shadow_size = 10
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_account_bar_bg"]
 bg_color = Color(0.102, 0.0588, 0.1686, 0.8)

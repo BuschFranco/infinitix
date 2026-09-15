@@ -23,6 +23,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.4902, 0.9922, 0.9961, 0.4)
+shadow_color = Color(0.4902, 0.9922, 0.9961, 0.3)
+shadow_size = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_selected"]
 bg_color = Color(1, 0.1843, 0.7255, 0.85)
@@ -31,6 +33,8 @@ border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
 border_color = Color(0.4902, 0.9922, 0.9961, 1)
+shadow_color = Color(1, 0.1843, 0.7255, 0.6)
+shadow_size = 10
 
 [node name="OptionsMenu" type="Control"]
 layout_mode = 1

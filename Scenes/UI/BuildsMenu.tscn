@@ -21,6 +21,8 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.4902, 0.9922, 0.9961, 0.4)
+shadow_color = Color(0.4902, 0.9922, 0.9961, 0.3)
+shadow_size = 4
 
 [node name="BuildsMenu" type="Control"]
 layout_mode = 1

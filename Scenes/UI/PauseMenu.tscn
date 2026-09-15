@@ -1,7 +1,47 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/PauseMenu.cs" id="1"]
 [ext_resource type="PackedScene" path="res://Scenes/UI/LoadoutMenu.tscn" id="2"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button"]
+bg_color = Color(0.102, 0.0588, 0.1686, 0.75)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4902, 0.9922, 0.9961, 0.4)
+shadow_color = Color(0.4902, 0.9922, 0.9961, 0.3)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+bg_color = Color(0.102, 0.0588, 0.1686, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4902, 0.9922, 0.9961, 0.8)
+shadow_color = Color(0.4902, 0.9922, 0.9961, 0.6)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_danger"]
+bg_color = Color(0.102, 0.0588, 0.1686, 0.75)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.55, 0.62, 0.5)
+shadow_color = Color(1, 0.55, 0.62, 0.3)
+shadow_size = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_danger_hover"]
+bg_color = Color(0.102, 0.0588, 0.1686, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.55, 0.62, 0.85)
+shadow_color = Color(1, 0.55, 0.62, 0.6)
+shadow_size = 10
 
 [node name="PauseMenu" type="Control"]
 layout_mode = 1
@@ -72,6 +112,8 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 16
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 text = "Reanudar"
 
 [node name="MenuSpacer" type="Control" parent="CenterContainer/HBox/Panel/Scroll/VBoxContainer"]
@@ -85,6 +127,8 @@ theme_override_font_sizes/font_size = 16
 theme_override_colors/font_color = Color(1, 0.55, 0.62, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_danger")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_danger_hover")
 text = "Abandonar partida"
 
 [node name="VolumeSpacer" type="Control" parent="CenterContainer/HBox/Panel/Scroll/VBoxContainer"]
