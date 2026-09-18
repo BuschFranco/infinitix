@@ -29,7 +29,7 @@ AudioManager="*res://Scripts/Autoload/AudioManager.cs"
 
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
-window/handheld/orientation="portrait"
+window/handheld/orientation="landscape"
 
 [dotnet]
 

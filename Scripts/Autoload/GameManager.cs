@@ -18,7 +18,7 @@ public partial class GameManager : Node
     public bool IsPaused = false;
 
     public enum ScreenOrientation { Landscape, Portrait }
-    public ScreenOrientation CurrentOrientation { get; private set; } = ScreenOrientation.Portrait;
+    public ScreenOrientation CurrentOrientation { get; private set; } = ScreenOrientation.Landscape;
 
     public float CameraDistance = 2000f;
 
@@ -785,15 +785,15 @@ public partial class GameManager : Node
 
     // Same plain-text-file pattern as HighScore above. Static since MainMenu (no GameManager
     // instance guaranteed loaded yet the very first time) needs to read the saved choice too.
-    // Portrait is the default for a first-ever launch (no save file yet) — only an explicit
-    // saved "Landscape" switches it, everything else (missing file, unreadable, unrecognized
-    // text) falls back to Portrait.
+    // Landscape is the default for a first-ever launch (no save file yet) — only an explicit
+    // saved "Portrait" switches it, everything else (missing file, unreadable, unrecognized
+    // text) falls back to Landscape.
     public static ScreenOrientation LoadOrientationPreference()
     {
-        if (!FileAccess.FileExists(OrientationFilePath)) return ScreenOrientation.Portrait;
+        if (!FileAccess.FileExists(OrientationFilePath)) return ScreenOrientation.Landscape;
         using var file = FileAccess.Open(OrientationFilePath, FileAccess.ModeFlags.Read);
-        if (file == null) return ScreenOrientation.Portrait;
-        return file.GetLine() == "Landscape" ? ScreenOrientation.Landscape : ScreenOrientation.Portrait;
+        if (file == null) return ScreenOrientation.Landscape;
+        return file.GetLine() == "Portrait" ? ScreenOrientation.Portrait : ScreenOrientation.Landscape;
     }
 
     private static void SaveOrientationPreference(ScreenOrientation orientation)
