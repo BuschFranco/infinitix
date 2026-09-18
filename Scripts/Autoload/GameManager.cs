@@ -816,9 +816,15 @@ public partial class GameManager : Node
     {
         bool portrait = CurrentOrientation == ScreenOrientation.Portrait;
 
-        DisplayServer.ScreenSetOrientation(portrait
-            ? DisplayServer.ScreenOrientation.Portrait
-            : DisplayServer.ScreenOrientation.Landscape);
+        // Only a handheld display server can actually lock its orientation -- calling this on
+        // desktop logs "Orientation not supported by this display server" on every launch and every
+        // toggle in Options, for a call that never does anything there anyway.
+        if (OS.HasFeature("android"))
+        {
+            DisplayServer.ScreenSetOrientation(portrait
+                ? DisplayServer.ScreenOrientation.Portrait
+                : DisplayServer.ScreenOrientation.Landscape);
+        }
 
         GetTree().Root.ContentScaleSize = portrait ? PortraitBaseSize : LandscapeBaseSize;
     }
@@ -1805,7 +1811,10 @@ public partial class GameManager : Node
         TotalMissionsCompleted = (int)config.GetValue(SettingsSection, "total_missions_completed", 0);
 
         _dailyStats.Clear();
-        foreach (string dateKey in config.GetSectionKeys(StatsDailySection))
+        // HasSection first: GetSectionKeys on a section that doesn't exist yet (a fresh save, before
+        // a single day's stats have ever been written) logs a Godot error instead of just returning
+        // empty.
+        foreach (string dateKey in config.HasSection(StatsDailySection) ? config.GetSectionKeys(StatsDailySection) : System.Array.Empty<string>())
         {
             string raw = (string)config.GetValue(StatsDailySection, dateKey, "");
             string[] parts = raw.Split('|');
@@ -1875,7 +1884,9 @@ public partial class GameManager : Node
         _characterLevel.Clear();
         _characterXp.Clear();
         _characterXpToNext.Clear();
-        foreach (string charSlug in config.GetSectionKeys(CharacterProgressSection))
+        // Same HasSection guard as StatsDailySection above -- no character has ever earned XP yet on
+        // a fresh save, so this section doesn't exist and GetSectionKeys would log an error for it.
+        foreach (string charSlug in config.HasSection(CharacterProgressSection) ? config.GetSectionKeys(CharacterProgressSection) : System.Array.Empty<string>())
         {
             string raw = (string)config.GetValue(CharacterProgressSection, charSlug, "");
             string[] parts = raw.Split('|');
