@@ -1,0 +1,120 @@
+keys,en
+── ESTADO ──,── STATUS ──
+Iniciar operación,Start operation
+Tienda,Shop
+Opciones,Options
+Construcciones,Builds
+Misiones,Missions
+Logros,Achievements
+Estadísticas,Stats
+CLÁSICO,CLASSIC
+HARDCORE,HARDCORE
+Todavía no hay récords,No records yet
+Mejor puntaje: {0},High score: {0}
+Dinero: {0},Dinero: {0}
+Nivel de cuenta: {0},Account level: {0}
+Puntaje: {0},Score: {0}
+Ronda {0},Round {0}
+RACHA {0},STREAK {0}
+JEFE · {0}%,BOSS · {0}%
+Nv {0},Lv {0}
+Nv,Lv
+Monedas: {0},Coins: {0}
+Puntaje: {0} (+{1}),Score: {0} (+{1})
+Puntaje Final: {0},Final Score: {0}
+Logros desbloqueados,Achievements unlocked
+Ronda {0}   Nv {1}   {2}: {3},Round {0}   Lv {1}   {2}: {3}
++{0} Dinero (total: {1}),+{0} Dinero (total: {1})
+XP cuenta: +{0}   ({1}/{2} para Nv {3}),Account XP: +{0}   ({1}/{2} to Lv {3})
+XP cuenta: +0   (superá la ronda {0} para empezar a ganar),Account XP: +0   (clear round {0} to start earning)
+¡{0} subió a Nivel {1}!,{0} reached Level {1}!
+¡Nivel de cuenta {0}!,Account level {0}!
+Build: {0},Build: {0}
+¡Logro desbloqueado: {0}! (+{1} Libras),Achievement unlocked: {0}! (+{1} Libras)
+Ronda {0}   Tiempo: {1}s,Round {0}   Time: {1}s
+{0} {1}   Monedas: {2}   Puntaje: {3},{0} {1}   Coins: {2}   Score: {3}
+{0}: {1}   Especiales: {2},{0}: {1}   Specials: {2}
+"Reanudando en...
+{0}","Resuming in...
+{0}"
+¿Abandonar la operación?,Abandon the operation?
+"Vas a volver al menú principal en la ronda {0}. Tu puntaje de {1} queda guardado, pero la operación termina acá.","You'll return to the main menu at round {0}. Your score of {1} is saved, but the operation ends here."
+Abandonar,Abandon
+Zoom de cámara: {0}%,Camera zoom: {0}%
+Volumen general: {0}%,Master volume: {0}%
+Opacidad del joystick: {0}%,Joystick opacity: {0}%
+Opacidad del botón Ultimate: {0}%,Ultimate button opacity: {0}%
+¡Canjeado! {0},Redeemed! {0}
+Efectos: {0}%,Effects: {0}%
+Música: {0}%,Music: {0}%
+PAUSA,PAUSE
+Reanudar,Resume
+Abandonar operación,Abandon operation
+OPERACIÓN FINALIZADA,OPERATION COMPLETE
+Nueva operación,New operation
+Menú Principal,Main Menu
+Ver Stats,View Stats
+Salir del juego,Quit game
+¿Salir del juego?,Quit the game?
+Tu puntaje ya quedó guardado. Se va a cerrar la aplicación.,Your score is already saved. The app will close.
+Salir,Quit
+OPCIONES,OPTIONS
+En 0% el joystick es invisible pero sigue funcionando.,At 0% the joystick is invisible but still works.
+En 0% el botón es invisible pero sigue funcionando.,At 0% the button is invisible but still works.
+Controla todo el audio. En 0% el juego queda en silencio.,Controls all audio. At 0% the game is silent.
+Menos% = más zoom. 100% = default.,Lower % = more zoom. 100% = default.
+Orientación,Orientation
+Horizontal,Landscape
+Vertical,Portrait
+Accesibilidad,Accessibility
+Movimiento reducido,Reduced motion
+"Quita destellos, sacudidas y animaciones que se repiten. No cambia la dificultad.","Removes flashes, shakes, and repeating animations. Doesn't change difficulty."
+Códigos secretos,Secret codes
+Ingresá un código,Enter a code
+Canjear,Redeem
+Los códigos se canjean una sola vez.,Codes can only be redeemed once.
+Ese código ya lo usaste.,You already used that code.
+Código inválido.,Invalid code.
+Volver,Back
+Compartir,Share
+¡Llegué a la ronda {0} con {1} puntos en Infinitix! 🚀 {2},I reached round {0} with {1} points in Infinitix! 🚀 {2}
+Controles,Controls
+Movimiento,Movement
+Táctil: arrastrá el joystick en pantalla,Touch: drag the on-screen joystick
+Teclado: WASD o las flechitas,Keyboard: WASD or the arrow keys
+Táctil: tocá el botón Ultimate,Touch: tap the Ultimate button
+Teclado: R o Espacio,Keyboard: R or Space
+¡A jugar!,Let's play!
+Cancelar,Cancel
+Confirmar,Confirm
+Idioma,Language
+¡Bienvenido a Infinitix!,Welcome to Infinitix!
+"¿Cómo te llamamos, CEO?","What should we call you, CEO?"
+Ingresá tu nombre,Enter your name
+Elegí tu ícono,Choose your icon
+Cambiar ícono,Change icon
+Conseguí más íconos en la Tienda,Get more icons in the Shop
+Cerrar,Close
+¡Vamos!,Let's go!
+Ingresá un nombre para continuar.,Enter a name to continue.
+Español,Spanish
+English,English
+Daño,Damage
+Cadencia,Fire Rate
+Alcance,Range
+Crítico,Crit
+Bajas,Kills
+Perforación,Pierce
+Esquiva,Dodge
+Al máximo,Maxed out
+ya estás al máximo,you're already maxed out
+Ya lo tenés,Already own it
+Ya tenés esto o mejor,Already have this or better
+rareza,rarity
+Láser,Laser
+Misil,Missile
+Mina,Mine
+Onda de Choque,Shockwave
+Vendaval,Gale
+Regeneración de escudo,Shield regen
+Ultimate,Ultimate

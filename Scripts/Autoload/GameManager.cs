@@ -107,13 +107,25 @@ public partial class GameManager : Node
     {
         Instance = this;
 
+        // Read BEFORE LoadLanguagePreference below, which returns a sensible default but never
+        // writes the file itself -- so this is the one reliable "has the player ever touched
+        // language/onboarding at all" signal, used by ShouldShowOnboarding further down.
+        bool hadLanguageFile = FileAccess.FileExists(LanguageFilePath);
+
         // Applied before anything else so the very first frame (main menu included) already
-        // renders in whatever orientation the player last picked, not a landscape flash that
-        // then snaps to portrait.
+        // renders in whatever language and orientation the player last picked, not a flash of
+        // the wrong one that then snaps over.
+        CurrentLanguage = LoadLanguagePreference();
+        TranslationServer.SetLocale(CurrentLanguage);
         CurrentOrientation = LoadOrientationPreference();
         ApplyOrientation();
         LoadSettings();
         EnsureMissionsForToday();
+
+        // A true first launch, not just "no name yet" or "no language yet" alone -- an existing
+        // player who happens to clear just one of the two save files shouldn't get sent through
+        // onboarding again.
+        ShouldShowOnboarding = !hadLanguageFile && string.IsNullOrEmpty(PlayerName);
 
         // Not started here — this runs at app boot, while the player is still in the main menu.
         // Starting it immediately meant it could burn all the way down before Arena.tscn even
@@ -153,6 +165,10 @@ public partial class GameManager : Node
     public int RegisterKill(int xpReward, int coinsReward, EnemyCategory category = EnemyCategory.Common)
     {
         EnemiesKilled++;
+        // Live, not batched at run end (see EvaluateAchievements below) -- same "bump it where the
+        // per-run counter already bumps" pattern EverCompletedBuilds/EverGotLegendary already use,
+        // so Exterminador/Cazajefes can notify the instant they're crossed instead of only at Game Over.
+        TotalEnemiesKilled++;
         if (category != EnemyCategory.Common) SpecialEnemiesKilled++;
         NotifyMissionProgress(MissionKind.Kill, 1);
 
@@ -175,6 +191,7 @@ public partial class GameManager : Node
         if (category == EnemyCategory.Boss)
         {
             BossesKilled++;
+            TotalBossesKilled++;
             NotifyMissionProgress(MissionKind.BossKill, 1);
             AudioManager.Instance?.Play(AudioManager.Sfx.BossDie);
 
@@ -189,6 +206,12 @@ public partial class GameManager : Node
 
             BeginRoundEnd();
         }
+
+        // Low-frequency checkpoint (once per kill, not per hit/frame) -- same convention the rest of
+        // meta-progression already follows. Idempotent per achievement id, so calling it here in
+        // addition to round-end/build/legendary checkpoints below never double-pays anything; it just
+        // lets Exterminador/Cazajefes/Puntería notify live instead of only at Game Over.
+        EvaluateAchievements(_unlockedAchievements);
 
         return finalXp;
     }
@@ -447,6 +470,19 @@ public partial class GameManager : Node
     {
         RoundNumber++;
         RoundChanged?.Invoke(RoundNumber);
+
+        // Live, not batched at run end -- one more round just got cleared (the one RoundNumber was
+        // at before this increment). Same live-counter reasoning as RegisterKill's TotalEnemiesKilled
+        // bump above; RegisterFinalScore no longer re-adds this (see roundsClearedThisRun there).
+        TotalRoundsCleared++;
+
+        // RoundReached missions and round-based achievements (Sobreviviente/Curtido/Imparable/
+        // Leyenda/Veterano) both read values that are live as of the two lines above -- checking them
+        // right here is what lets "llegá a la ronda 8" notify the instant round 8 begins, instead of
+        // only at Game Over. Both calls are idempotent (per mission slot / per achievement id), so
+        // the existing end-of-run calls stay in place as a harmless safety net.
+        NotifyMissionRoundReached(RoundNumber);
+        EvaluateAchievements(_unlockedAchievements);
 
         // The recap has been up since the round ended, through every modal. This is the point the
         // player has finished choosing everything, so it comes down as the countdown begins.
@@ -787,6 +823,51 @@ public partial class GameManager : Node
         GetTree().Root.ContentScaleSize = portrait ? PortraitBaseSize : LandscapeBaseSize;
     }
 
+    private const string LanguageFilePath = "user://language.save";
+
+    // Same plain-text-file pattern as Orientation above, for the same reason: applied in _Ready
+    // before LoadSettings/the first frame, so the main menu never flashes in the wrong language.
+    // First ever launch (no save file yet) defaults to the device's own language rather than a
+    // fixed choice -- Spanish if the system locale is Spanish, English otherwise -- since the
+    // store listing is already bilingual and a non-Spanish device is more likely to want English.
+    public static string LoadLanguagePreference()
+    {
+        if (!FileAccess.FileExists(LanguageFilePath))
+            return OS.GetLocaleLanguage().StartsWith("es") ? "es" : "en";
+        using var file = FileAccess.Open(LanguageFilePath, FileAccess.ModeFlags.Read);
+        string saved = file?.GetLine();
+        return string.IsNullOrEmpty(saved) ? "es" : saved;
+    }
+
+    private static void SaveLanguagePreference(string code)
+    {
+        using var file = FileAccess.Open(LanguageFilePath, FileAccess.ModeFlags.Write);
+        file?.StoreLine(code);
+    }
+
+    // "es" isn't a typo for a missing default -- every hardcoded string in the game already IS
+    // Spanish (see docs/localization.md), so Spanish needs no translation CSV entries at all; it's
+    // simply what TranslationServer falls back to showing when a key has no row for the active
+    // locale. "en" is the first (and so far only) locale that actually has a CSV column.
+    public string CurrentLanguage { get; private set; } = "es";
+
+    // Called from the Options screen's language picker. Takes effect immediately: Godot re-translates
+    // every already-displayed Control automatically on SetLocale, EXCEPT text that was built by
+    // interpolating an already-translated template (the result no longer matches any CSV key) --
+    // MainMenu re-renders those itself when Options closes (see its VisibilityChanged hook), since
+    // Options is the only screen this picker is reachable from.
+    public void SetLanguage(string code)
+    {
+        CurrentLanguage = code;
+        SaveLanguagePreference(code);
+        TranslationServer.SetLocale(code);
+    }
+
+    // Computed once in _Ready (see the top of this file) from whether a language save file already
+    // existed at boot AND whether a player name is on record -- true only on a genuine first launch,
+    // read once by MainMenu to decide whether to show OnboardingMenu.
+    public bool ShouldShowOnboarding { get; private set; }
+
     // 1 per round survived, counted from round 1 (no free/unpaid opening rounds) — simple and
     // transparent enough that the player can predict it before the run ends, and it scales with skill
     // (a better run pays out more) without needing to weigh kills vs. score vs. coins into one
@@ -819,10 +900,11 @@ public partial class GameManager : Node
         var player = GetTree().GetFirstNodeInGroup("player") as Player;
         int critsThisRun = player?.CritsLandedThisRun ?? 0;
         int roundsClearedThisRun = Mathf.Max(0, RoundNumber - 1);
-        TotalEnemiesKilled += EnemiesKilled;
-        TotalBossesKilled += BossesKilled;
-        TotalCritsLanded += critsThisRun;
-        TotalRoundsCleared += roundsClearedThisRun;
+        // TotalEnemiesKilled/TotalBossesKilled/TotalCritsLanded/TotalRoundsCleared are no longer
+        // batched here -- they're bumped live (RegisterKill, Player.ApplyCrit via NotifyCritLanded,
+        // StartNextRound) the same way EverCompletedBuilds/EverGotLegendary already were, so the
+        // matching achievements can notify mid-run instead of only at Game Over. critsThisRun/
+        // roundsClearedThisRun above are still needed for RecordRunStats' per-run daily breakdown.
         BestRoundReached = Mathf.Max(BestRoundReached, RoundNumber);
 
         int playTimeSeconds = _runStartTimeMsec > 0 ? (int)((Time.GetTicksMsec() - _runStartTimeMsec) / 1000) : 0;
@@ -879,27 +961,54 @@ public partial class GameManager : Node
     public HashSet<Player.BuildClass> EverCompletedBuilds { get; private set; } = new();
     public HashSet<UpgradeType> EverGotLegendary { get; private set; } = new();
 
-    // Newly unlocked achievements *this run*, filled by EvaluateAchievements (called from
-    // RegisterFinalScore) so GameOverScreen can reveal them without re-deriving anything itself.
+    // Newly unlocked achievements *this run*, filled by EvaluateAchievements -- called from several
+    // live checkpoints now (RegisterKill, StartNextRound, NotifyBuildCompleted/NotifyLegendaryObtained,
+    // RegisterFinalScore), not just at run end, so it accumulates across the whole run. Cleared once
+    // per run in ResetRun (NOT inside EvaluateAchievements itself, which would wipe out anything
+    // already unlocked earlier in the same run every time it's called live). GameOverScreen reveals
+    // the final list without re-deriving anything itself.
     public List<AchievementDef> LastRunNewAchievements { get; private set; } = new();
+
+    // Fired the instant an achievement crosses its threshold, from wherever EvaluateAchievements
+    // happens to be called live -- same shape as LevelsGained above. A toast controller subscribes to
+    // this to notify in the moment, separately from LastRunNewAchievements' end-of-run recap use.
+    public event Action<AchievementDef> AchievementUnlocked;
+
+    // Same shape as AchievementUnlocked, fired the instant a mission slot completes (from
+    // NotifyMissionProgress/NotifyMissionRoundReached below) -- the string is the slot's display name
+    // already resolved via MissionCatalog.FormatName, so a toast subscriber doesn't need to re-derive it.
+    public event Action<MissionSlot, string> MissionCompleted;
 
     public void NotifyBuildCompleted(Player.BuildClass cls)
     {
         if (!EverCompletedBuilds.Add(cls)) return;
+        EvaluateAchievements(_unlockedAchievements);
         SaveMetaProgress();
     }
 
     public void NotifyLegendaryObtained(UpgradeType type)
     {
         if (!EverGotLegendary.Add(type)) return;
+        EvaluateAchievements(_unlockedAchievements);
         SaveMetaProgress();
     }
 
-    // Compares every achievement's unlocked state before vs. after this run's lifetime counters were
-    // rolled up, pays out whichever newly crossed their threshold, and records them for GameOverScreen.
+    // Live counterpart to Player.CritsLandedThisRun -- TotalCritsLanded used to only roll up in
+    // RegisterFinalScore (see there), which meant Puntería could never notify mid-run. Called from
+    // Player.ApplyCrit right alongside CritsLandedThisRun++. No SaveMetaProgress here on purpose: a
+    // crit can land many times a second, and this in-memory bump is durable enough by the next save
+    // checkpoint (kill, round start, run end) the same way EnemiesKilled/BossesKilled already are.
+    public void NotifyCritLanded()
+    {
+        TotalCritsLanded++;
+    }
+
+    // Compares every achievement's unlocked state before vs. after -- safe to call from many live
+    // checkpoints (RegisterKill, StartNextRound, NotifyBuildCompleted, NotifyLegendaryObtained,
+    // RegisterFinalScore) since it's idempotent per achievement id; it never double-pays one, it just
+    // never misses whichever moment actually crossed the threshold.
     private void EvaluateAchievements(HashSet<string> alreadyUnlocked)
     {
-        LastRunNewAchievements.Clear();
         foreach (var def in AchievementCatalog.All)
         {
             if (alreadyUnlocked.Contains(def.Id)) continue;
@@ -909,6 +1018,7 @@ public partial class GameManager : Node
             LastRunNewAchievements.Add(def);
             Libras += def.RewardLibras;
             RecordLibrasEarned(def.RewardLibras);
+            AchievementUnlocked?.Invoke(def);
         }
         _unlockedAchievements = alreadyUnlocked;
     }
@@ -1002,6 +1112,7 @@ public partial class GameManager : Node
                 Libras += slot.Reward;
                 RecordLibrasEarned(slot.Reward);
                 TotalMissionsCompleted++;
+                MissionCompleted?.Invoke(slot, MissionCatalog.FormatName(slot));
             }
             changed = true;
         }
@@ -1028,6 +1139,7 @@ public partial class GameManager : Node
                 Libras += slot.Reward;
                 RecordLibrasEarned(slot.Reward);
                 TotalMissionsCompleted++;
+                MissionCompleted?.Invoke(slot, MissionCatalog.FormatName(slot));
             }
             changed = true;
         }
@@ -1247,6 +1359,22 @@ public partial class GameManager : Node
         var config = new ConfigFile();
         config.Load(SettingsFilePath);
         config.SetValue(SettingsSection, "selected_character_slug", slug);
+        config.Save(SettingsFilePath);
+    }
+
+    // The account's own display name, set once at OnboardingMenu and shown in MainMenu's top-center
+    // identity box -- distinct from a pilot/character name (CharacterCatalog), which names the ship
+    // being flown, not the person flying it. Empty until set is exactly the signal
+    // ShouldShowOnboarding above reads, so there's no separate "has it been set" flag to keep in sync.
+    public string PlayerName { get; private set; } = "";
+
+    public void SetPlayerName(string name)
+    {
+        PlayerName = name;
+
+        var config = new ConfigFile();
+        config.Load(SettingsFilePath);
+        config.SetValue(SettingsSection, "player_name", name);
         config.Save(SettingsFilePath);
     }
 
@@ -1641,6 +1769,8 @@ public partial class GameManager : Node
 
         SelectedCharacter = slug;
 
+        PlayerName = (string)config.GetValue(SettingsSection, "player_name", "");
+
         CurrentGameMode = (GameMode)(int)config.GetValue(SettingsSection, "game_mode", (int)GameMode.Classic);
 
         // Falls back to the old "meta_currency" key so a save from before the Núcleos → Libras rename
@@ -1949,6 +2079,11 @@ public partial class GameManager : Node
 
     public void ResetRun()
     {
+        // A new run's own recap, not a continuation of whichever run last called EvaluateAchievements
+        // live -- see LastRunNewAchievements' comment above for why this can't live inside
+        // EvaluateAchievements itself now that it's called from several points during a run.
+        LastRunNewAchievements.Clear();
+
         Xp = 0;
         Level = 1;
         XpToNextLevel = 10;

@@ -87,10 +87,10 @@ public partial class PauseMenu : Control
 
         var lines = new List<string>();
 
-        lines.Add("── ESTADO ──");
-        lines.Add($"Ronda {gm.RoundNumber}   Tiempo: {Mathf.CeilToInt(gm.RoundTimeRemaining)}s");
-        lines.Add($"{Glossary.LevelPrefix} {gm.Level}   Monedas: {gm.Coins}   Puntaje: {gm.Score}");
-        lines.Add($"{Glossary.Kills}: {gm.EnemiesKilled}   Especiales: {gm.SpecialEnemiesKilled}");
+        lines.Add(Tr("── ESTADO ──"));
+        lines.Add(string.Format(Tr("Ronda {0}   Tiempo: {1}s"), gm.RoundNumber, Mathf.CeilToInt(gm.RoundTimeRemaining)));
+        lines.Add(string.Format(Tr("{0} {1}   Monedas: {2}   Puntaje: {3}"), Glossary.LevelPrefix, gm.Level, gm.Coins, gm.Score));
+        lines.Add(string.Format(Tr("{0}: {1}   Especiales: {2}"), Glossary.Kills, gm.EnemiesKilled, gm.SpecialEnemiesKilled));
 
         if (player != null)
         {
@@ -154,7 +154,7 @@ public partial class PauseMenu : Control
         int secondsLeft = Mathf.CeilToInt(_resumeCountdownRemaining);
         if (secondsLeft != _lastCountdownSecond)
         {
-            _resumeCountdownLabel.Text = $"Reanudando en...\n{secondsLeft}";
+            _resumeCountdownLabel.Text = string.Format(Tr("Reanudando en...\n{0}"), secondsLeft);
             Juice.ValuePop(_resumeCountdownLabel, 1.3f, 0.3f);
             _lastCountdownSecond = secondsLeft;
         }
@@ -195,10 +195,10 @@ public partial class PauseMenu : Control
         }
 
         dialog.Ask(
-            "¿Abandonar la partida?",
-            $"Vas a volver al menú principal en la ronda {GameManager.Instance.RoundNumber}. " +
-            $"Tu puntaje de {GameManager.Instance.Score} queda guardado, pero la partida termina acá.",
-            "Abandonar",
+            Tr("¿Abandonar la operación?"),
+            string.Format(Tr("Vas a volver al menú principal en la ronda {0}. Tu puntaje de {1} queda guardado, pero la operación termina acá."),
+                GameManager.Instance.RoundNumber, GameManager.Instance.Score),
+            Tr("Abandonar"),
             AbandonToMenu);
     }
 
@@ -222,7 +222,7 @@ public partial class PauseMenu : Control
     private void UpdateCameraDistanceLabel(float distance)
     {
         float pct = 2000f / distance * 100f;
-        _cameraDistanceLabel.Text = $"Zoom de cámara: {pct:0}%";
+        _cameraDistanceLabel.Text = string.Format(Tr("Zoom de cámara: {0}%"), Mathf.RoundToInt(pct));
     }
 
     // Same setting as OptionsMenu's "Volumen general" slider (GameManager.MasterVolume) — surfaced
@@ -234,7 +234,7 @@ public partial class PauseMenu : Control
     }
 
     private void UpdateMasterVolumeLabel(double value) =>
-        _masterVolumeLabel.Text = $"Volumen general: {value:0}%";
+        _masterVolumeLabel.Text = string.Format(Tr("Volumen general: {0}%"), Mathf.RoundToInt((float)value));
 
     // Same settings as OptionsMenu's joystick/Ultimate-button opacity sliders — surfaced here too so
     // adjusting them doesn't require abandoning the run to reach the main menu's Options, same
@@ -246,7 +246,7 @@ public partial class PauseMenu : Control
     }
 
     private void UpdateJoystickLabel(double value) =>
-        _joystickLabel.Text = $"Opacidad del joystick: {value:0}%";
+        _joystickLabel.Text = string.Format(Tr("Opacidad del joystick: {0}%"), Mathf.RoundToInt((float)value));
 
     private void OnUltimateButtonOpacityChanged(double value)
     {
@@ -255,5 +255,5 @@ public partial class PauseMenu : Control
     }
 
     private void UpdateUltimateButtonLabel(double value) =>
-        _ultimateButtonLabel.Text = $"Opacidad del botón Ultimate: {value:0}%";
+        _ultimateButtonLabel.Text = string.Format(Tr("Opacidad del botón Ultimate: {0}%"), Mathf.RoundToInt((float)value));
 }

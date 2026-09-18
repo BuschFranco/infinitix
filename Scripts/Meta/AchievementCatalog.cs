@@ -16,6 +16,17 @@ public readonly record struct AchievementDef(
 
 public static class AchievementCatalog
 {
+    // Which badge icon a row shows, keyed by tier -- was duplicated per-consumer (AchievementsMenu's
+    // row icon, NotificationToastController's live toast) until GameOverScreen became a third. One
+    // dictionary here instead of three copies quietly drifting apart.
+    public static readonly Dictionary<AchievementTier, Texture2D> TierBadges = new()
+    {
+        [AchievementTier.Bronze] = GD.Load<Texture2D>("res://Assets/Sprites/UI/badge_bronze.png"),
+        [AchievementTier.Silver] = GD.Load<Texture2D>("res://Assets/Sprites/UI/badge_silver.png"),
+        [AchievementTier.Gold] = GD.Load<Texture2D>("res://Assets/Sprites/UI/badge_gold.png"),
+        [AchievementTier.Platinum] = GD.Load<Texture2D>("res://Assets/Sprites/UI/badge_platinum.png"),
+    };
+
     // First-guess numbers, pending playtesting — same spirit as the rest of the reward/economy
     // catalogs in this project. Not a closed list; more get added later with the same shape. Each
     // tiered family (Exterminador, Cazajefes, Puntería...) climbs into genuinely grindy endgame

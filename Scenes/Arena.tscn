@@ -29,6 +29,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/ConfirmDialog.tscn" id="27"]
 [ext_resource type="Script" path="res://Scripts/DustField.cs" id="28"]
 [ext_resource type="Script" path="res://Scripts/ArenaBackground.cs" id="31"]
+[ext_resource type="Script" path="res://Scripts/UI/NotificationToastController.cs" id="32"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/ControlsTutorial.tscn" id="33"]
 
 [sub_resource type="Environment" id="Environment_neon"]
 background_mode = 3
@@ -64,7 +66,7 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
-modulate = Color(1, 1, 1, 0.45)
+modulate = Color(1, 1, 1, 0.1)
 expand_mode = 1
 stretch_mode = 6
 script = ExtResource("31")
@@ -241,10 +243,31 @@ layer = 6
 
 [node name="BossBanner" parent="BossBannerLayer" instance=ExtResource("15")]
 
+[node name="NotificationLayer" type="CanvasLayer" parent="."]
+layer = 7
+
+[node name="NotificationStack" type="VBoxContainer" parent="NotificationLayer"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -280.0
+offset_top = 90.0
+offset_right = -20.0
+offset_bottom = 90.0
+grow_horizontal = 0
+mouse_filter = 2
+script = ExtResource("32")
+
 [node name="PauseLayer" type="CanvasLayer" parent="."]
 layer = 8
 
 [node name="PauseMenu" parent="PauseLayer" instance=ExtResource("10")]
+
+[node name="ControlsTutorialLayer" type="CanvasLayer" parent="."]
+layer = 9
+
+[node name="ControlsTutorial" parent="ControlsTutorialLayer" instance=ExtResource("33")]
 
 [node name="UpgradeLayer" type="CanvasLayer" parent="."]
 layer = 10

@@ -890,25 +890,26 @@ public partial class Player : CharacterBody2D
         tween.Chain().TweenCallback(Callable.From(puff.QueueFree));
     }
 
-    // WASD as a desktop-friendly alternative to the virtual joystick — only consulted when the
-    // joystick itself isn't providing input, so touch input always takes priority and the two
-    // never fight over movement.
+    // WASD or the arrow keys, as a desktop-friendly alternative to the virtual joystick — only
+    // consulted when the joystick itself isn't providing input, so touch input always takes
+    // priority and the two never fight over movement.
     private static Vector2 GetKeyboardDirection()
     {
         Vector2 dir = Vector2.Zero;
-        if (Input.IsKeyPressed(Key.W)) dir.Y -= 1f;
-        if (Input.IsKeyPressed(Key.S)) dir.Y += 1f;
-        if (Input.IsKeyPressed(Key.A)) dir.X -= 1f;
-        if (Input.IsKeyPressed(Key.D)) dir.X += 1f;
+        if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up)) dir.Y -= 1f;
+        if (Input.IsKeyPressed(Key.S) || Input.IsKeyPressed(Key.Down)) dir.Y += 1f;
+        if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) dir.X -= 1f;
+        if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) dir.X += 1f;
         return dir.Normalized();
     }
 
-    // R triggers the Ultimate — via _UnhandledInput (not polled every physics frame) so it fires
-    // exactly once per key-down and is automatically ignored while the tree is paused (shop,
+    // R or Space triggers the Ultimate — via _UnhandledInput (not polled every physics frame) so it
+    // fires exactly once per key-down and is automatically ignored while the tree is paused (shop,
     // pause menu, game over), same as every other gameplay input.
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo && keyEvent.Keycode == Key.R)
+        if (@event is InputEventKey keyEvent && keyEvent.Pressed && !keyEvent.Echo
+            && (keyEvent.Keycode == Key.R || keyEvent.Keycode == Key.Space))
             TriggerUltimate();
     }
 
@@ -1887,14 +1888,18 @@ public partial class Player : CharacterBody2D
     // Rolled per hit, not per volley/tick — same reasoning as burn being applied per hit rather
     // than per pickup. Shared by every weapon (bullets, laser, blades, missiles, the drone) so a
     // Crítico build feels like it crits everywhere, not just on the basic gun.
-    // Lifetime crit total (GameManager.TotalCritsLanded) is rolled up from this at end of run —
-    // Player is recreated fresh every run, so no reset needed here.
+    // Lifetime crit total (GameManager.TotalCritsLanded) is bumped live alongside this, via
+    // NotifyCritLanded below -- Player is recreated fresh every run, so no reset needed here.
     public int CritsLandedThisRun { get; private set; }
 
     public int ApplyCrit(int baseDamage, out bool isCrit)
     {
         isCrit = CritChance > 0f && _critRng.NextDouble() * 100.0 < CritChance;
-        if (isCrit) CritsLandedThisRun++;
+        if (isCrit)
+        {
+            CritsLandedThisRun++;
+            GameManager.Instance?.NotifyCritLanded();
+        }
         float classBonus = IsClassActive(BuildClass.Assassin) ? 1.25f : 1f;
         return isCrit ? Mathf.RoundToInt(baseDamage * CritMultiplier * classBonus) : Mathf.RoundToInt(baseDamage * classBonus);
     }

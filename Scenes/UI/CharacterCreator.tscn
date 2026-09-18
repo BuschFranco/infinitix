@@ -78,7 +78,7 @@ theme_override_colors/font_color = Color(1, 0.624, 0.953, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
-text = "CREAR PILOTO"
+text = "CONTRATAR PILOTO"
 horizontal_alignment = 1
 
 [node name="Top" type="HBoxContainer" parent="CenterContainer/Panel/Box"]

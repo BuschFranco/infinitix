@@ -32,7 +32,7 @@ public static class SecretCodeCatalog
         new()
         {
             Code = "INFINITIX",
-            Reward = "+100 Libras",
+            Reward = "+100 Dinero",
             Grant = gm => gm.AddLibras(100),
         },
         new()

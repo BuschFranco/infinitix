@@ -180,7 +180,7 @@ public partial class HUD : Control
         _scoreDeltaTimer.OneShot = true;
         _scoreDeltaTimer.WaitTime = 1.2;
         AddChild(_scoreDeltaTimer);
-        _scoreDeltaTimer.Timeout += () => _scoreLabel.Text = $"Puntaje: {GameManager.Instance.Score}";
+        _scoreDeltaTimer.Timeout += () => _scoreLabel.Text = string.Format(Tr("Puntaje: {0}"), GameManager.Instance.Score);
 
         GameManager.Instance.XpChanged += OnXpChanged;
         GameManager.Instance.LevelUp += OnLevelUp;
@@ -380,7 +380,7 @@ public partial class HUD : Control
         int streak = _player.KillStreak;
 
         _streakMultLabel.Text = $"×{_player.KillStreakMultiplier:0.0}";
-        _streakCountLabel.Text = $"RACHA {streak}";
+        _streakCountLabel.Text = string.Format(Tr("RACHA {0}"), streak);
         Juice.BarFill(_streakBar, Mathf.Min(streak, Player.KillStreakMax));
         _streakPanel.Visible = true;
 
@@ -621,7 +621,7 @@ public partial class HUD : Control
         int pct = _currentBoss.MaxHp > 0
             ? Mathf.Clamp(Mathf.CeilToInt(_currentBoss.CurrentHp * 100f / _currentBoss.MaxHp), 0, 100)
             : 0;
-        _bossNameLabel.Text = $"JEFE · {pct}%";
+        _bossNameLabel.Text = string.Format(Tr("JEFE · {0}%"), pct);
     }
 
     // One heart per life slot, filled/unfilled to show current vs. lost. There's one node per point of
@@ -778,7 +778,7 @@ public partial class HUD : Control
 
     private void OnLevelUp(int level)
     {
-        _levelLabel.Text = $"Nv {level}";
+        _levelLabel.Text = string.Format(Tr("Nv {0}"), level);
     }
 
     // Fires once per AddXp call with the TOTAL levels crossed (not once per threshold like
@@ -818,12 +818,12 @@ public partial class HUD : Control
 
     private void OnRoundChanged(int round)
     {
-        _roundLabel.Text = $"Ronda {round}";
+        _roundLabel.Text = string.Format(Tr("Ronda {0}"), round);
     }
 
     private void OnCoinsChanged(int coins)
     {
-        _coinsLabel.Text = $"Monedas: {coins}";
+        _coinsLabel.Text = string.Format(Tr("Monedas: {0}"), coins);
         if (_lastCoins >= 0 && coins > _lastCoins)
             Juice.ValuePop(_coinsLabel, 1.25f, 0.2f);
         _lastCoins = coins;
@@ -836,13 +836,13 @@ public partial class HUD : Control
 
         if (delta > 0)
         {
-            _scoreLabel.Text = $"Puntaje: {score} (+{delta})";
+            _scoreLabel.Text = string.Format(Tr("Puntaje: {0} (+{1})"), score, delta);
             _scoreDeltaTimer.Start();
             Juice.ValuePop(_scoreLabel, 1.25f, 0.2f);
         }
         else
         {
-            _scoreLabel.Text = $"Puntaje: {score}";
+            _scoreLabel.Text = string.Format(Tr("Puntaje: {0}"), score);
         }
     }
 }

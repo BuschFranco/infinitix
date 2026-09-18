@@ -25,6 +25,8 @@ public partial class OptionsMenu : Control
     private HSlider _cameraDistanceSlider;
     private Button _landscapeButton;
     private Button _portraitButton;
+    private Button _spanishButton;
+    private Button _englishButton;
     private Button _closeButton;
     private Button _reducedMotionButton;
     private PanelContainer _panel;
@@ -75,6 +77,8 @@ public partial class OptionsMenu : Control
         _cameraDistanceSlider = GetNode<HSlider>("CenterContainer/Panel/Scroll/Box/CameraDistanceSlider");
         _landscapeButton = GetNode<Button>("CenterContainer/Panel/Scroll/Box/OrientationRow/LandscapeButton");
         _portraitButton = GetNode<Button>("CenterContainer/Panel/Scroll/Box/OrientationRow/PortraitButton");
+        _spanishButton = GetNode<Button>("CenterContainer/Panel/Scroll/Box/LanguageRow/SpanishButton");
+        _englishButton = GetNode<Button>("CenterContainer/Panel/Scroll/Box/LanguageRow/EnglishButton");
         _closeButton = GetNode<Button>("CenterContainer/Panel/Scroll/Box/CloseButton");
         _reducedMotionButton = GetNode<Button>("CenterContainer/Panel/Scroll/Box/ReducedMotionButton");
         _codeInput = GetNode<LineEdit>("CenterContainer/Panel/Scroll/Box/CodeRow/CodeInput");
@@ -96,6 +100,8 @@ public partial class OptionsMenu : Control
         Juice.WireButtonFeedback(_closeButton);
         Juice.WireButtonFeedback(_landscapeButton);
         Juice.WireButtonFeedback(_portraitButton);
+        Juice.WireButtonFeedback(_spanishButton);
+        Juice.WireButtonFeedback(_englishButton);
         Juice.WireButtonFeedback(_reducedMotionButton);
 
         _reducedMotionButton.Toggled += OnReducedMotionToggled;
@@ -116,6 +122,9 @@ public partial class OptionsMenu : Control
             GameManager.Instance?.SetOrientation(GameManager.ScreenOrientation.Portrait);
             FitToOrientation();
         };
+
+        _spanishButton.Toggled += pressed => { if (pressed) GameManager.Instance?.SetLanguage("es"); };
+        _englishButton.Toggled += pressed => { if (pressed) GameManager.Instance?.SetLanguage("en"); };
 
         // Belt-and-suspenders for the toggles above: DisplayServer.ScreenSetOrientation (inside
         // SetOrientation) doesn't necessarily land the same frame it's requested, so the FitToOrientation
@@ -140,19 +149,19 @@ public partial class OptionsMenu : Control
                 // Re-read the code that was actually matched rather than echoing what was typed, so
                 // the confirmation names the reward.
                 SecretCodeCatalog.TryGet(SecretCodeCatalog.Normalise(_codeInput.Text), out var code);
-                SetCodeFeedback($"¡Canjeado! {code.Reward}", Palette.Player);
+                SetCodeFeedback(string.Format(Tr("¡Canjeado! {0}"), code.Reward), Palette.Player);
                 AudioManager.Instance?.Play(AudioManager.Sfx.UiBuy);
                 _codeInput.Clear();
                 break;
 
             case CodeRedeemResult.AlreadyUsed:
-                SetCodeFeedback("Ese código ya lo usaste.", Palette.Warning);
+                SetCodeFeedback(Tr("Ese código ya lo usaste."), Palette.Warning);
                 AudioManager.Instance?.Play(AudioManager.Sfx.UiDenied);
                 Juice.Shake(_codeInput);
                 break;
 
             default:
-                SetCodeFeedback("Código inválido.", Palette.Warning);
+                SetCodeFeedback(Tr("Código inválido."), Palette.Warning);
                 AudioManager.Instance?.Play(AudioManager.Sfx.UiDenied);
                 Juice.Shake(_codeInput);
                 break;
@@ -217,6 +226,10 @@ public partial class OptionsMenu : Control
         _landscapeButton.SetPressedNoSignal(!isPortrait);
         _portraitButton.SetPressedNoSignal(isPortrait);
 
+        bool isEnglish = GameManager.Instance?.CurrentLanguage == "en";
+        _spanishButton.SetPressedNoSignal(!isEnglish);
+        _englishButton.SetPressedNoSignal(isEnglish);
+
         bool reduced = GameManager.Instance?.ReducedMotion ?? false;
         _reducedMotionButton.SetPressedNoSignal(reduced);
         UpdateReducedMotionLabel(reduced);
@@ -263,7 +276,7 @@ public partial class OptionsMenu : Control
     }
 
     private void UpdateMasterVolumeLabel(double value) =>
-        _masterVolumeLabel.Text = $"Volumen general: {value:0}%";
+        _masterVolumeLabel.Text = string.Format(Tr("Volumen general: {0}%"), Mathf.RoundToInt((float)value));
 
     private void OnVolumeChanged(double value)
     {
@@ -272,7 +285,7 @@ public partial class OptionsMenu : Control
     }
 
     private void UpdateVolumeLabel(double value) =>
-        _volumeLabel.Text = $"Efectos: {value:0}%";
+        _volumeLabel.Text = string.Format(Tr("Efectos: {0}%"), Mathf.RoundToInt((float)value));
 
     private void OnMusicVolumeChanged(double value)
     {
@@ -281,7 +294,7 @@ public partial class OptionsMenu : Control
     }
 
     private void UpdateMusicVolumeLabel(double value) =>
-        _musicVolumeLabel.Text = $"Música: {value:0}%";
+        _musicVolumeLabel.Text = string.Format(Tr("Música: {0}%"), Mathf.RoundToInt((float)value));
 
     private void OnJoystickOpacityChanged(double value)
     {
@@ -290,7 +303,7 @@ public partial class OptionsMenu : Control
     }
 
     private void UpdateJoystickLabel(double value) =>
-        _joystickLabel.Text = $"Opacidad del joystick: {value:0}%";
+        _joystickLabel.Text = string.Format(Tr("Opacidad del joystick: {0}%"), Mathf.RoundToInt((float)value));
 
     private void OnUltimateButtonOpacityChanged(double value)
     {
@@ -299,7 +312,7 @@ public partial class OptionsMenu : Control
     }
 
     private void UpdateUltimateButtonLabel(double value) =>
-        _ultimateButtonLabel.Text = $"Opacidad del botón Ultimate: {value:0}%";
+        _ultimateButtonLabel.Text = string.Format(Tr("Opacidad del botón Ultimate: {0}%"), Mathf.RoundToInt((float)value));
 
     private void OnCameraDistanceChanged(double value)
     {
@@ -312,6 +325,6 @@ public partial class OptionsMenu : Control
     private void UpdateCameraDistanceLabel(double value)
     {
         float pct = 2000f / (float)value * 100f;
-        _cameraDistanceLabel.Text = $"Zoom de cámara: {pct:0}%";
+        _cameraDistanceLabel.Text = string.Format(Tr("Zoom de cámara: {0}%"), Mathf.RoundToInt(pct));
     }
 }

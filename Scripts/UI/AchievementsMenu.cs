@@ -15,16 +15,6 @@ public partial class AchievementsMenu : Control
     private readonly Dictionary<AchievementCategory, Button> _categoryTabs = new();
     private VBoxContainer _rows;
 
-    // Chrome-neon badges matching the logo's style (see UltimateButtonIcon for the same treatment
-    // on the Ultimate buttons) — one per AchievementTier, cached so RebuildRows (called every time
-    // the category tab changes) doesn't reload the same four textures over and over.
-    private static readonly Dictionary<AchievementTier, Texture2D> TierBadges = new()
-    {
-        [AchievementTier.Bronze] = GD.Load<Texture2D>("res://Assets/Sprites/UI/badge_bronze.png"),
-        [AchievementTier.Silver] = GD.Load<Texture2D>("res://Assets/Sprites/UI/badge_silver.png"),
-        [AchievementTier.Gold] = GD.Load<Texture2D>("res://Assets/Sprites/UI/badge_gold.png"),
-        [AchievementTier.Platinum] = GD.Load<Texture2D>("res://Assets/Sprites/UI/badge_platinum.png"),
-    };
     private static readonly Texture2D LibrasCoinIcon = GD.Load<Texture2D>("res://Assets/Sprites/UI/coin_gem.png");
 
     public override void _Ready()
@@ -156,7 +146,7 @@ public partial class AchievementsMenu : Control
         // reasoning the name/description text already follows, just applied to the badge too.
         var badgeIcon = new TextureRect
         {
-            Texture = TierBadges[def.Tier],
+            Texture = AchievementCatalog.TierBadges[def.Tier],
             CustomMinimumSize = new Vector2(28f, 28f),
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,

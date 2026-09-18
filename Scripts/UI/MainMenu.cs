@@ -47,31 +47,75 @@ public partial class MainMenu : Control
         Juice.WireButtonFeedback(tiendaButton);
 
         var highScoreLabel = GetNode<Label>("VBoxContainer/HighScoreLabel");
-        highScoreLabel.Text = $"Mejor puntaje: {GameManager.LoadHighScore()}";
+        highScoreLabel.Text = string.Format(Tr("Mejor puntaje: {0}"), GameManager.LoadHighScore());
+
+        // Top-center identity box: name (set once at OnboardingMenu) + account level + Libras, all
+        // in one place instead of the level/Libras text that used to float in the centered column
+        // (see docs — that column keeps only the XP progress bar now, purely visual). Built here in
+        // code, not the .tscn, same reasoning as WrapWithCoinIcon below: keeps the coin-icon markup
+        // in one place rather than hand-authoring it twice.
+        var playerNameLabel = GetNode<Label>("PlayerInfoBox/PlayerInfoColumn/NameRow/PlayerNameLabel");
+        var profileIconButton = GetNode<Button>("PlayerInfoBox/PlayerInfoColumn/NameRow/ProfileIconButton");
+        var profileIconRect = GetNode<TextureRect>("PlayerInfoBox/PlayerInfoColumn/NameRow/ProfileIconButton/ProfileIconRect");
+        var statsRow = GetNode<HBoxContainer>("PlayerInfoBox/PlayerInfoColumn/StatsRow");
+        var levelValueLabel = new Label();
+        levelValueLabel.AddThemeFontSizeOverride("font_size", 13);
+        levelValueLabel.AddThemeColorOverride("font_color", new Color(0.55f, 0.75f, 1f));
+        levelValueLabel.AddThemeColorOverride("font_outline_color", Colors.Black);
+        levelValueLabel.AddThemeConstantOverride("outline_size", 2);
+        statsRow.AddChild(levelValueLabel);
+        var coinIcon = new TextureRect
+        {
+            Texture = LibrasCoinIcon,
+            CustomMinimumSize = new Vector2(14f, 14f),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+        };
+        statsRow.AddChild(coinIcon);
+        var librasValueLabel = new Label();
+        librasValueLabel.AddThemeFontSizeOverride("font_size", 13);
+        librasValueLabel.AddThemeColorOverride("font_color", new Color(0.75f, 0.55f, 1f));
+        librasValueLabel.AddThemeColorOverride("font_outline_color", Colors.Black);
+        librasValueLabel.AddThemeConstantOverride("outline_size", 2);
+        statsRow.AddChild(librasValueLabel);
+
+        var accountLevelBar = GetNode<ProgressBar>("VBoxContainer/AccountLevelBarRow/AccountLevelBar");
+        RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+
+        // Tapping the icon itself opens the quick swap picker (see ProfileIconPicker) instead of
+        // sending the player all the way to the Tienda just to switch between icons they already own.
+        var iconPicker = GetNode<ProfileIconPicker>("ProfileIconPicker");
+        profileIconButton.Pressed += iconPicker.Open;
+        Juice.WireButtonFeedback(profileIconButton);
+        iconPicker.VisibilityChanged += () =>
+        {
+            if (!iconPicker.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+        };
 
         // Read from the live instance, not a static file re-read like the high score above — Libras
         // is already loaded into GameManager.Instance at boot. CharacterSelectMenu is an overlay
         // *child* of this menu, not a scene swap, so MainMenu's own Visible never toggles while it's
         // open — the refresh has to hook the overlay's visibility instead, so spending Libras in
         // there and hitting Cancel updates the balance shown underneath.
-        var librasLabel = GetNode<Label>("VBoxContainer/LibrasLabel");
-        WrapWithCoinIcon(librasLabel);
-        var accountLevelLabel = GetNode<Label>("VBoxContainer/AccountLevelLabel");
-        var accountLevelBar = GetNode<ProgressBar>("VBoxContainer/AccountLevelBarRow/AccountLevelBar");
-        RefreshMetaLabels(librasLabel, accountLevelLabel, accountLevelBar);
         characterSelect.VisibilityChanged += () =>
         {
-            if (!characterSelect.Visible) RefreshMetaLabels(librasLabel, accountLevelLabel, accountLevelBar);
+            if (!characterSelect.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
         };
 
         var options = GetNode<OptionsMenu>("OptionsMenu");
         optionsButton.Pressed += options.Open;
-        // Options changes GameManager.CurrentOrientation live (see OptionsMenu's landscape/portrait
-        // toggles) without ever reloading MainMenu, so the row layout picked at _Ready above would
-        // otherwise go stale the moment the player switches orientation and comes back here.
+        // Options changes GameManager.CurrentOrientation/CurrentLanguage live (see OptionsMenu's
+        // landscape/portrait and Español/English toggles) without ever reloading MainMenu, so the
+        // row layout and this screen's own interpolated labels would otherwise go stale the moment
+        // the player switches either and comes back here. Godot re-translates static Control text on
+        // its own when the locale changes; these two are the only labels MainMenu built by
+        // interpolating an already-translated template, which is why they need refreshing by hand.
         options.VisibilityChanged += () =>
         {
-            if (!options.Visible) ApplyButtonsRowLayout();
+            if (options.Visible) return;
+            ApplyButtonsRowLayout();
+            highScoreLabel.Text = string.Format(Tr("Mejor puntaje: {0}"), GameManager.LoadHighScore());
+            RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
         };
 
         var builds = GetNode<BuildsMenu>("BuildsMenu");
@@ -83,7 +127,7 @@ public partial class MainMenu : Control
         tiendaButton.Pressed += cosmeticsShop.Open;
         cosmeticsShop.VisibilityChanged += () =>
         {
-            if (!cosmeticsShop.Visible) RefreshMetaLabels(librasLabel, accountLevelLabel, accountLevelBar);
+            if (!cosmeticsShop.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
         };
 
         // Same refresh-on-close hook — achievement/mission payouts also spend into the same Libras
@@ -94,7 +138,7 @@ public partial class MainMenu : Control
         Juice.WireButtonFeedback(achievementsButton);
         achievementsMenu.VisibilityChanged += () =>
         {
-            if (!achievementsMenu.Visible) RefreshMetaLabels(librasLabel, accountLevelLabel, accountLevelBar);
+            if (!achievementsMenu.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
         };
 
         // Split out of the combined Logros screen into its own button/screen, immediately to the
@@ -105,7 +149,7 @@ public partial class MainMenu : Control
         Juice.WireButtonFeedback(missionsButton);
         missionsMenu.VisibilityChanged += () =>
         {
-            if (!missionsMenu.Visible) RefreshMetaLabels(librasLabel, accountLevelLabel, accountLevelBar);
+            if (!missionsMenu.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
         };
 
         // Read-only — no VisibilityChanged refresh hook needed, nothing here spends or earns Libras.
@@ -113,6 +157,16 @@ public partial class MainMenu : Control
         var statsMenu = GetNode<StatsMenu>("StatsMenu");
         statsButton.Pressed += statsMenu.Open;
         Juice.WireButtonFeedback(statsButton);
+
+        // Not opened from a button like every overlay above — GameManager.ShouldShowOnboarding is
+        // computed once at boot (see GameManager._Ready), so this either shows itself right away on
+        // a genuine first launch, or never shows at all this session.
+        var onboarding = GetNode<OnboardingMenu>("OnboardingMenu");
+        onboarding.VisibilityChanged += () =>
+        {
+            if (!onboarding.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+        };
+        if (GameManager.Instance.ShouldShowOnboarding) onboarding.Open();
 
         AnimateTitle();
         PopulateRecords();
@@ -131,33 +185,6 @@ public partial class MainMenu : Control
     private const float BorderGlowBoost = 1.8f;
 
     private static readonly Texture2D LibrasCoinIcon = GD.Load<Texture2D>("res://Assets/Sprites/UI/coin_gem.png");
-
-    // Reparents `label` into a new HBoxContainer with a coin icon in front of it, at the exact spot
-    // `label` used to occupy — done in code rather than in MainMenu.tscn so RefreshMetaLabels and
-    // every other reference to `librasLabel` (by node type Label) keeps working unchanged; only the
-    // parent it happens to sit inside is different now.
-    private static void WrapWithCoinIcon(Control label)
-    {
-        var parent = label.GetParent();
-        int index = label.GetIndex();
-        var icon = new TextureRect
-        {
-            Texture = LibrasCoinIcon,
-            CustomMinimumSize = new Vector2(18f, 18f),
-            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-        };
-
-        var row = new HBoxContainer();
-        row.AddThemeConstantOverride("separation", 5);
-        row.Alignment = BoxContainer.AlignmentMode.Center;
-
-        parent.RemoveChild(label);
-        row.AddChild(icon);
-        row.AddChild(label);
-        parent.AddChild(row);
-        parent.MoveChild(row, index);
-    }
 
     private void AnimateAccents()
     {
@@ -257,11 +284,18 @@ public partial class MainMenu : Control
         };
     }
 
-    private void RefreshMetaLabels(Label librasLabel, Label accountLevelLabel, ProgressBar accountLevelBar)
+    private void RefreshTopBox(Label playerNameLabel, TextureRect profileIconRect, Label levelValueLabel, Label librasValueLabel, ProgressBar accountLevelBar)
     {
         var gm = GameManager.Instance;
-        librasLabel.Text = $"Libras: {gm.Libras}";
-        accountLevelLabel.Text = $"Nivel de cuenta: {gm.AccountLevel}";
+        playerNameLabel.Text = gm.PlayerName;
+        // Null (DefaultId, or a saved id whose icon got removed from the catalog) hides the slot
+        // rather than showing a broken/blank square -- same "graceful fallback" ProfileIconCatalog
+        // documents for Texture().
+        var iconTexture = ProfileIconCatalog.Texture(gm.EquippedCosmetic(CosmeticCategory.ProfileIcon));
+        profileIconRect.Texture = iconTexture;
+        profileIconRect.Visible = iconTexture != null;
+        levelValueLabel.Text = string.Format(Tr("Nv {0}"), gm.AccountLevel);
+        librasValueLabel.Text = gm.Libras.ToString();
         accountLevelBar.MaxValue = gm.AccountXpToNextLevel;
         Juice.BarFill(accountLevelBar, gm.AccountXp);
     }

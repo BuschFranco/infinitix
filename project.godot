@@ -43,6 +43,11 @@ theme/custom_font="res://Assets/Fonts/PixelFont.ttf"
 
 pointing/emulate_touch_from_mouse=true
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://Assets/Localization/strings.en.translation")
+locale/fallback="es"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

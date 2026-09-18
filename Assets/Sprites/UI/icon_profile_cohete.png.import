@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b0khrspdxtujk"
-path="res://.godot/imported/bg_menu_synthgrid.png-a8508df2082d286523c46cb72e24359a.ctex"
+uid="uid://dywyl03himpni"
+path="res://.godot/imported/icon_profile_cohete.png-365b0d953490f1deaddbcc107fa1f4f9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Sprites/Backgrounds/bg_menu_synthgrid.png"
-dest_files=["res://.godot/imported/bg_menu_synthgrid.png-a8508df2082d286523c46cb72e24359a.ctex"]
+source_file="res://Assets/Sprites/UI/icon_profile_cohete.png"
+dest_files=["res://.godot/imported/icon_profile_cohete.png-365b0d953490f1deaddbcc107fa1f4f9.ctex"]
 
 [params]
 

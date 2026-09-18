@@ -55,8 +55,7 @@ public partial class MissionsMenu : Control
 
     private Control BuildMissionRow(GameManager.MissionSlot slot)
     {
-        var template = MissionCatalog.Get(slot.TemplateId);
-        string name = template.Name.Contains("{0}") ? string.Format(template.Name, slot.Target) : template.Name;
+        string name = MissionCatalog.FormatName(slot);
 
         var panel = new PanelContainer();
         var style = new StyleBoxFlat

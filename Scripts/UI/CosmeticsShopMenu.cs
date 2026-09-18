@@ -41,6 +41,12 @@ public partial class CosmeticsShopMenu : Control
     private Button _charactersTabButton;
     private bool _charactersTabSelected;
 
+    // Same reasoning for Íconos — CosmeticCategory.ProfileIcon exists so GameManager's generic
+    // ownership/equip machinery covers it for free, but its options are images (ProfileIconCatalog),
+    // not colours, so it's excluded from the swatch-grid loop below and gets its own row view instead.
+    private Button _iconsTabButton;
+    private bool _iconsTabSelected;
+
     private const float SwatchSize = 44f;
 
     // 7 x 44px swatches plus 6 x 6px gaps is 344px, inside the ~382px the 420-wide panel leaves after
@@ -91,6 +97,10 @@ public partial class CosmeticsShopMenu : Control
 
         foreach (CosmeticCategory category in System.Enum.GetValues<CosmeticCategory>())
         {
+            // ProfileIcon has no colour palette (see the field doc comment above) — it gets the same
+            // separate-tab treatment as Personajes, built below instead of from this loop.
+            if (category == CosmeticCategory.ProfileIcon) continue;
+
             var button = new Button
             {
                 Text = CosmeticCatalog.ShortLabel(category),
@@ -118,13 +128,25 @@ public partial class CosmeticsShopMenu : Control
         grid.AddChild(_charactersTabButton);
         Juice.WireButtonFeedback(_charactersTabButton);
         _charactersTabButton.Pressed += SelectCharactersTab;
+
+        _iconsTabButton = new Button
+        {
+            Text = "Íconos",
+            CustomMinimumSize = new Vector2(0f, 38f),
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
+        };
+        _iconsTabButton.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
+        grid.AddChild(_iconsTabButton);
+        Juice.WireButtonFeedback(_iconsTabButton);
+        _iconsTabButton.Pressed += SelectIconsTab;
     }
 
     private void SelectCategory(CosmeticCategory category)
     {
-        if (!_charactersTabSelected && _selected == category) return;
+        if (!_charactersTabSelected && !_iconsTabSelected && _selected == category) return;
         _selected = category;
         _charactersTabSelected = false;
+        _iconsTabSelected = false;
         RebuildContent();
         RefreshTabs();
     }
@@ -133,16 +155,28 @@ public partial class CosmeticsShopMenu : Control
     {
         if (_charactersTabSelected) return;
         _charactersTabSelected = true;
+        _iconsTabSelected = false;
         RebuildContent();
         RefreshTabs();
     }
 
-    // Personajes rebuilds into rows (name/portrait/price) instead of a swatch grid — everything else
-    // downstream (Open, SelectCategory, SelectCharactersTab) goes through this instead of calling
-    // RebuildPalette directly, so neither has to know which mode is active.
+    private void SelectIconsTab()
+    {
+        if (_iconsTabSelected) return;
+        _iconsTabSelected = true;
+        _charactersTabSelected = false;
+        RebuildContent();
+        RefreshTabs();
+    }
+
+    // Personajes and Íconos rebuild into rows (name/portrait/price) instead of a swatch grid —
+    // everything else downstream (Open, SelectCategory, SelectCharactersTab, SelectIconsTab) goes
+    // through this instead of calling RebuildPalette directly, so none of them have to know which
+    // mode is active.
     private void RebuildContent()
     {
         if (_charactersTabSelected) RebuildCharacterRows();
+        else if (_iconsTabSelected) RebuildIconRows();
         else RebuildPalette();
     }
 
@@ -152,7 +186,7 @@ public partial class CosmeticsShopMenu : Control
     {
         foreach (var (category, button) in _tabs)
         {
-            bool active = !_charactersTabSelected && category == _selected;
+            bool active = !_charactersTabSelected && !_iconsTabSelected && category == _selected;
             Color equipped = GameManager.Instance.CosmeticColor(category, CosmeticCatalog.BaseColor(category));
 
             // The Outline category's "Original" is fully transparent (no outline at all), which would
@@ -189,6 +223,21 @@ public partial class CosmeticsShopMenu : Control
         _charactersTabButton.AddThemeStyleboxOverride("hover", charStyle);
         _charactersTabButton.AddThemeStyleboxOverride("pressed", charStyle);
         _charactersTabButton.AddThemeColorOverride("font_color", _charactersTabSelected ? Colors.White : new Color(0.72f, 0.76f, 0.84f));
+
+        // Same plain active/inactive treatment as Personajes — an icon isn't "equipped as a colour"
+        // either, so there's no per-tab chip to summarize.
+        var iconStyle = new StyleBoxFlat
+        {
+            BgColor = _iconsTabSelected ? new Color(Palette.Player, 0.28f) : new Color(0.043f, 0.024f, 0.078f, 0.7f),
+            BorderColor = Palette.Player,
+        };
+        iconStyle.SetBorderWidthAll(_iconsTabSelected ? 3 : 1);
+        iconStyle.SetContentMarginAll(4f);
+
+        _iconsTabButton.AddThemeStyleboxOverride("normal", iconStyle);
+        _iconsTabButton.AddThemeStyleboxOverride("hover", iconStyle);
+        _iconsTabButton.AddThemeStyleboxOverride("pressed", iconStyle);
+        _iconsTabButton.AddThemeColorOverride("font_color", _iconsTabSelected ? Colors.White : new Color(0.72f, 0.76f, 0.84f));
     }
 
     // --- Palette -------------------------------------------------------------------------------
@@ -236,7 +285,7 @@ public partial class CosmeticsShopMenu : Control
             var button = new Button
             {
                 CustomMinimumSize = new Vector2(SwatchSize, SwatchSize),
-                TooltipText = option.Cost > 0 ? $"{option.Name} ({option.Cost} Libras)" : option.Name,
+                TooltipText = option.Cost > 0 ? $"{option.Name} ({option.Cost} Dinero)" : option.Name,
             };
             button.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
             grid.AddChild(button);
@@ -329,7 +378,7 @@ public partial class CosmeticsShopMenu : Control
         }
         else
         {
-            var buyButton = new Button { Text = $"{info.UnlockCost} Libras" };
+            var buyButton = new Button { Text = $"{info.UnlockCost} Dinero" };
             buyButton.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
             Juice.WireButtonFeedback(buyButton);
             string slug = info.Slug;
@@ -353,6 +402,107 @@ public partial class CosmeticsShopMenu : Control
         AudioManager.Instance?.Play(AudioManager.Sfx.UiBuy);
         PulseLibras(cost);
         RebuildCharacterRows();
+    }
+
+    // --- Íconos ----------------------------------------------------------------------------------
+    //
+    // Same row shape as Personajes above (portrait/name/state), not the swatch grid — an icon is an
+    // image to preview, not a colour (see the _iconsTabButton field doc comment).
+
+    private void RebuildIconRows()
+    {
+        foreach (var child in _paletteBox.GetChildren()) child.QueueFree();
+        _swatches.Clear();
+
+        _sectionLabel.Text = "Íconos de perfil";
+
+        foreach (var option in ProfileIconCatalog.Options)
+            _paletteBox.AddChild(BuildIconRow(option));
+    }
+
+    private Control BuildIconRow(ProfileIconOption option)
+    {
+        var gm = GameManager.Instance;
+        bool owned = gm.IsCosmeticOwned(CosmeticCategory.ProfileIcon, option.Id);
+        bool equipped = gm.EquippedCosmetic(CosmeticCategory.ProfileIcon) == option.Id;
+
+        var panel = new PanelContainer();
+        var style = new StyleBoxFlat
+        {
+            BgColor = new Color(0.102f, 0.0588f, 0.1686f, 0.75f),
+            BorderColor = equipped ? Colors.White : owned ? Palette.Player : CosmeticCatalog.TierColor(option.Tier),
+        };
+        style.SetBorderWidthAll(equipped ? 3 : 2);
+        style.SetContentMarginAll(8f);
+        panel.AddThemeStyleboxOverride("panel", style);
+
+        var row = new HBoxContainer();
+        row.AddThemeConstantOverride("separation", 10);
+        panel.AddChild(row);
+
+        var portrait = new TextureRect
+        {
+            Texture = ProfileIconCatalog.Texture(option.Id),
+            CustomMinimumSize = new Vector2(40f, 40f),
+            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            Modulate = owned ? Colors.White : new Color(1f, 1f, 1f, LockedAlpha),
+        };
+        row.AddChild(portrait);
+
+        var textBox = new VBoxContainer { SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        textBox.AddThemeConstantOverride("separation", 2);
+        row.AddChild(textBox);
+
+        var nameLabel = new Label { Text = option.Name };
+        nameLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Body);
+        nameLabel.AddThemeColorOverride("font_color", owned ? Colors.White : new Color(0.72f, 0.76f, 0.84f));
+        textBox.AddChild(nameLabel);
+
+        var tierLabel = new Label { Text = CosmeticCatalog.TierName(option.Tier) };
+        tierLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
+        tierLabel.AddThemeColorOverride("font_color", CosmeticCatalog.TierColor(option.Tier));
+        textBox.AddChild(tierLabel);
+
+        if (equipped)
+        {
+            var equippedLabel = new Label { Text = "✓ Equipado" };
+            equippedLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Body);
+            equippedLabel.AddThemeColorOverride("font_color", Palette.Player);
+            row.AddChild(equippedLabel);
+        }
+        else
+        {
+            var actionButton = new Button { Text = owned ? "Equipar" : option.Cost > 0 ? $"{option.Cost} Dinero" : "Gratis" };
+            actionButton.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
+            Juice.WireButtonFeedback(actionButton);
+            string id = option.Id;
+            int cost = option.Cost;
+            actionButton.Pressed += () => OnIconRowPressed(id, cost);
+            row.AddChild(actionButton);
+        }
+
+        return panel;
+    }
+
+    private void OnIconRowPressed(string id, int cost)
+    {
+        var gm = GameManager.Instance;
+        if (!gm.IsCosmeticOwned(CosmeticCategory.ProfileIcon, id))
+        {
+            if (!gm.TryBuyCosmetic(CosmeticCategory.ProfileIcon, id, cost))
+            {
+                AudioManager.Instance?.Play(AudioManager.Sfx.UiDenied);
+                Juice.Shake(_librasLabel, flashColor: Palette.Warning);
+                return;
+            }
+
+            AudioManager.Instance?.Play(AudioManager.Sfx.UiBuy);
+            PulseLibras(cost);
+        }
+
+        gm.EquipCosmetic(CosmeticCategory.ProfileIcon, id);
+        RebuildIconRows();
     }
 
     private static Label TierHeading(CosmeticTier tier)
@@ -393,7 +543,7 @@ public partial class CosmeticsShopMenu : Control
     // spending Coins already does in the round shop, not a silent number swap.
     private void PulseLibras(int spent)
     {
-        _librasLabel.Text = $"Libras: {GameManager.Instance.Libras}";
+        _librasLabel.Text = $"Dinero: {GameManager.Instance.Libras}";
 
         _librasTween?.Kill();
         _librasLabel.PivotOffset = _librasLabel.Size / 2f;
@@ -475,7 +625,7 @@ public partial class CosmeticsShopMenu : Control
 
     public void Open()
     {
-        _librasLabel.Text = $"Libras: {GameManager.Instance.Libras}";
+        _librasLabel.Text = $"Dinero: {GameManager.Instance.Libras}";
         RebuildContent();
         RefreshTabs();
         FitToOrientation();

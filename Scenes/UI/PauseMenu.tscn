@@ -129,7 +129,7 @@ theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_button_danger")
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_danger_hover")
-text = "Abandonar partida"
+text = "Abandonar operación"
 
 [node name="VolumeSpacer" type="Control" parent="CenterContainer/HBox/Panel/Scroll/VBoxContainer"]
 custom_minimum_size = Vector2(0, 18)

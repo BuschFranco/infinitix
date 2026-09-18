@@ -15,47 +15,53 @@ namespace ShooterLoop;
 // moves so the player can connect the two.
 //
 // Same shape as Palette and BuildCatalog: presentation only, no logic, no scene-tree knowledge.
+//
+// Fields are properties, not const strings, so each one re-resolves against whatever language is
+// active right now via TranslationServer -- a const is baked in at compile time and could never be
+// anything but Spanish. The Spanish text inside each getter IS the translation key (see
+// docs/localization.md): Assets/Localization/strings.csv keys on the original Spanish string, so
+// every existing call site (Glossary.Damage, etc.) keeps working unchanged.
 public static class Glossary
 {
     // --- Stats ---
     // Deliberately unabbreviated. "CAD" saved six characters in the HUD and cost the player any
     // chance of connecting it to the "Fuego Rápido" they had just bought.
-    public const string Damage = "Daño";
-    public const string FireRate = "Cadencia";
-    public const string Range = "Alcance";
-    public const string Crit = "Crítico";
-    public const string Kills = "Bajas";
-    public const string Pierce = "Perforación";
-    public const string Dodge = "Esquiva";
+    public static string Damage => TranslationServer.Translate("Daño");
+    public static string FireRate => TranslationServer.Translate("Cadencia");
+    public static string Range => TranslationServer.Translate("Alcance");
+    public static string Crit => TranslationServer.Translate("Crítico");
+    public static string Kills => TranslationServer.Translate("Bajas");
+    public static string Pierce => TranslationServer.Translate("Perforación");
+    public static string Dodge => TranslationServer.Translate("Esquiva");
 
     // --- Shared vocabulary ---
     // "Nv" everywhere. The pause menu's powers block used "Lv" while every other screen — including
     // the pause menu's own status block, three lines above — used "Nv".
-    public const string LevelPrefix = "Nv";
+    public static string LevelPrefix => TranslationServer.Translate("Nv");
 
     // One phrasing for "you can't improve this any further". There were five: "Al tope",
     // "ya estás en el tope", "estás al tope y a full", "ya estás a full", and "(tope N)".
-    public const string AtCap = "Al máximo";
-    public const string AtCapSentence = "ya estás al máximo";
-    public const string Owned = "Ya lo tenés";
-    public const string OwnedBetter = "Ya tenés esto o mejor";
+    public static string AtCap => TranslationServer.Translate("Al máximo");
+    public static string AtCapSentence => TranslationServer.Translate("ya estás al máximo");
+    public static string Owned => TranslationServer.Translate("Ya lo tenés");
+    public static string OwnedBetter => TranslationServer.Translate("Ya tenés esto o mejor");
 
     // "tier" was internal jargon leaking into player-facing copy — the cards themselves never use
     // the word, they say COMÚN/RARO/ÉPICO/LEGENDARIO.
-    public const string Rarity = "rareza";
+    public static string Rarity => TranslationServer.Translate("rareza");
 
     // --- Ability icons ---
     // The HUD identifies seven abilities by a single letter each, with no legend anywhere and no
     // hover to hang a tooltip off (this is a touch game). These are the letter→name pairs the pause
     // menu's legend prints, and they're the single source both it and the HUD scene agree on.
-    public static readonly (string Glyph, string Name)[] AbilityLegend =
+    public static (string Glyph, string Name)[] AbilityLegend => new (string, string)[]
     {
-        ("L", "Láser"),
-        ("M", "Misil"),
-        ("N", "Mina"),
-        ("O", "Onda de Choque"),
-        ("V", "Vendaval"),
-        ("R", "Regeneración de escudo"),
-        ("U", "Ultimate"),
+        ("L", TranslationServer.Translate("Láser")),
+        ("M", TranslationServer.Translate("Misil")),
+        ("N", TranslationServer.Translate("Mina")),
+        ("O", TranslationServer.Translate("Onda de Choque")),
+        ("V", TranslationServer.Translate("Vendaval")),
+        ("R", TranslationServer.Translate("Regeneración de escudo")),
+        ("U", TranslationServer.Translate("Ultimate")),
     };
 }

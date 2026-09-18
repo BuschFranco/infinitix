@@ -26,6 +26,11 @@ public enum CosmeticCategory
     // Unlike every other category, "Original" here has no pre-existing look to reproduce — there was
     // no kill effect before this category existed. See BaseColor below.
     KillEffect,
+    // Not a colour at all — an actual picked image, shown next to the player's name in MainMenu's
+    // identity box. Reuses this same enum (and GameManager's generic ownership/equip machinery) purely
+    // for the free persistence; its options, catalog shape and shop rendering all live in
+    // ProfileIconCatalog instead of here, since CosmeticOption below has no texture field.
+    ProfileIcon,
 }
 
 // Rarity, which drives price and the frame drawn around a swatch. This is not decoration: the tiers

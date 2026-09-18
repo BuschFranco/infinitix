@@ -178,7 +178,28 @@ public partial class EnemySpawner : Node2D
         // This node only exists once Arena.tscn has actually loaded — the one reliable "gameplay
         // genuinely began" signal round 1 has. See GameManager.StartRoundOneTimer for why round 1
         // needs this at all (every later round arms its own timer from StartNextRound instead).
-        GameManager.Instance?.StartRoundOneTimer();
+        //
+        // The player's very first-ever run gets the controls tutorial first, gating this same
+        // trigger — TotalRunsPlayed only increments at run end (RegisterFinalScore), so it's still
+        // 0 throughout this, the player's first round 1. Pausing the whole tree (not just delaying
+        // this call) matters because ConfigureForRound above already armed _spawnTimer -- a Timer
+        // only freezes when the tree itself pauses (see StopSpawning below), so without this,
+        // enemies would start spawning behind the tutorial.
+        if (GameManager.Instance != null && GameManager.Instance.TotalRunsPlayed == 0)
+        {
+            GameManager.Instance.Pause();
+            var tutorial = GetTree().CurrentScene.GetNode<ControlsTutorial>("ControlsTutorialLayer/ControlsTutorial");
+            tutorial.Closed += () =>
+            {
+                GameManager.Instance.Resume();
+                GameManager.Instance.StartRoundOneTimer();
+            };
+            tutorial.Open();
+        }
+        else
+        {
+            GameManager.Instance?.StartRoundOneTimer();
+        }
     }
 
     // A Timer only pauses (freezes its remaining time) when the tree pauses — it doesn't reset.

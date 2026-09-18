@@ -13,6 +13,8 @@
 [ext_resource type="PackedScene" path="res://Scenes/UI/GameModeMenu.tscn" id="11"]
 [ext_resource type="Texture2D" path="res://Assets/Branding/infinitix_logo_pixel.png" id="12"]
 [ext_resource type="Script" path="res://Scripts/UI/MenuShipShowcase.cs" id="13"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/OnboardingMenu.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://Scenes/UI/ProfileIconPicker.tscn" id="15"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_records_panel"]
 content_margin_left = 14.0
@@ -212,24 +214,6 @@ theme_override_font_sizes/font_size = 20
 text = "Mejor puntaje: 0"
 horizontal_alignment = 1
 
-[node name="LibrasLabel" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.55, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 16
-text = "Libras: 0"
-horizontal_alignment = 1
-
-[node name="AccountLevelLabel" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.55, 0.75, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 14
-text = "Nivel de cuenta: 1"
-horizontal_alignment = 1
-
 [node name="AccountLevelBarRow" type="CenterContainer" parent="VBoxContainer"]
 layout_mode = 2
 
@@ -325,7 +309,7 @@ theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_button")
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
-text = "Comenzar"
+text = "Iniciar operación"
 
 [node name="TiendaButton" type="Button" parent="VBoxContainer/ButtonsRow"]
 custom_minimum_size = Vector2(150, 52)
@@ -420,6 +404,65 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_button_violet")
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_violet_hover")
 text = "Estadísticas"
 
+[node name="PlayerInfoBox" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -120.0
+offset_top = 14.0
+offset_right = 120.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_records_panel")
+
+[node name="PlayerInfoColumn" type="VBoxContainer" parent="PlayerInfoBox"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="CeoLabel" type="Label" parent="PlayerInfoBox/PlayerInfoColumn"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(1, 0.878, 0.4, 0.85)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+text = "CEO"
+
+[node name="NameRow" type="HBoxContainer" parent="PlayerInfoBox/PlayerInfoColumn"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="ProfileIconButton" type="Button" parent="PlayerInfoBox/PlayerInfoColumn/NameRow"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_vertical = 4
+flat = true
+tooltip_text = "Cambiar ícono"
+
+[node name="ProfileIconRect" type="TextureRect" parent="PlayerInfoBox/PlayerInfoColumn/NameRow/ProfileIconButton"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PlayerNameLabel" type="Label" parent="PlayerInfoBox/PlayerInfoColumn/NameRow"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+text = "Piloto"
+
+[node name="StatsRow" type="HBoxContainer" parent="PlayerInfoBox/PlayerInfoColumn"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
 [node name="OptionsMenu" parent="." unique_id=1831938219 instance=ExtResource("2")]
 grow_horizontal = 2
 grow_vertical = 2
@@ -453,5 +496,13 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="MissionsMenu" parent="." instance=ExtResource("10")]
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OnboardingMenu" parent="." instance=ExtResource("14")]
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ProfileIconPicker" parent="." instance=ExtResource("15")]
 grow_horizontal = 2
 grow_vertical = 2

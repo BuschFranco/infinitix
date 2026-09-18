@@ -1,8 +1,10 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://Scripts/UI/OptionsMenu.cs" id="1"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_orientation"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_language"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.043, 0.024, 0.078, 0.96)
@@ -206,6 +208,45 @@ text = "Menos% = más zoom. 100% = default."
 autowrap_mode = 2
 
 [node name="SepCamera" type="Control" parent="CenterContainer/Panel/Scroll/Box"]
+custom_minimum_size = Vector2(0, 22)
+layout_mode = 2
+
+[node name="LanguageLabel" type="Label" parent="CenterContainer/Panel/Scroll/Box"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Idioma"
+
+[node name="LanguageRow" type="HBoxContainer" parent="CenterContainer/Panel/Scroll/Box"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="SpanishButton" type="Button" parent="CenterContainer/Panel/Scroll/Box/LanguageRow"]
+custom_minimum_size = Vector2(150, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_selected")
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_language")
+text = "Español"
+
+[node name="EnglishButton" type="Button" parent="CenterContainer/Panel/Scroll/Box/LanguageRow"]
+custom_minimum_size = Vector2(150, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_button")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_selected")
+toggle_mode = true
+button_group = SubResource("ButtonGroup_language")
+text = "English"
+
+[node name="SepLanguage" type="Control" parent="CenterContainer/Panel/Scroll/Box"]
 custom_minimum_size = Vector2(0, 22)
 layout_mode = 2
 

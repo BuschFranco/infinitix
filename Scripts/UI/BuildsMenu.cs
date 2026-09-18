@@ -44,7 +44,7 @@ public partial class BuildsMenu : Control
         // it looked broken — a screen full of question marks with nothing explaining them.
         if (player == null)
         {
-            lines.Add("[color=#ffc24a]Empezá una partida para ver tu progreso en cada construcción.[/color]");
+            lines.Add("[color=#ffc24a]Iniciá una operación para ver tu progreso en cada construcción.[/color]");
             lines.Add("");
         }
 

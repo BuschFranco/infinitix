@@ -89,7 +89,7 @@ theme_override_colors/font_color = Color(0.4902, 0.9922, 0.9961, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 20
-text = "ELEGÍ TU PILOTO"
+text = "TUS PILOTOS"
 horizontal_alignment = 1
 
 [node name="Carousel" type="HBoxContainer" parent="CenterContainer/Panel/Box"]
@@ -280,7 +280,7 @@ theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 horizontal_alignment = 1
 vertical_alignment = 1
-text = "Bloqueado — cómpralo en la Tienda"
+text = "Sin contratar — fichalo en la Tienda"
 
 [node name="CancelButton" type="Button" parent="CenterContainer/Panel/Box"]
 custom_minimum_size = Vector2(0, 44)

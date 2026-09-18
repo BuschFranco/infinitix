@@ -56,6 +56,7 @@ reading before changing balance numbers:
 - [visuals.md](docs/visuals.md) — palette, glow, and animation
 - [audio.md](docs/audio.md) — generated SFX and music, throttling, and the volume settings
 - [assets.md](docs/assets.md) — the `tools/` pipeline: where every file in the repo comes from
+- [localization.md](docs/localization.md) — the CSV translation system, and how to add a string or a language
 
 Nearly all balance tuning is done by editing named constants in one place per system — the
 `RoundCurve` fields at the top of `EnemySpawner.cs`, the cap constants in `Player.cs`, and the

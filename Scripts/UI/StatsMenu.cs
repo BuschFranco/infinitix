@@ -124,7 +124,7 @@ public partial class StatsMenu : Control
         AddCard(activityGrid, "Críticos", stats.CritsLanded.ToString(), Palette.DamageNumber);
         AddCard(activityGrid, "Rondas\nsuperadas", stats.RoundsCleared.ToString(), Palette.OndaBlast);
         AddCard(activityGrid, "Monedas\nganadas", stats.CoinsEarned.ToString(), Palette.MineBlast);
-        AddCard(activityGrid, "Libras\nganadas", stats.LibrasEarned.ToString(), Palette.LevelPopup);
+        AddCard(activityGrid, "Dinero\nganado", stats.LibrasEarned.ToString(), Palette.LevelPopup);
         AddCard(activityGrid, "Partidas\njugadas", stats.RunsPlayed.ToString(), Palette.ShopPanelBorder);
         AddCard(activityGrid, "Tiempo\njugado", FormatDuration(stats.PlayTimeSeconds), Palette.ShieldAura);
 

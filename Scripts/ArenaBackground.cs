@@ -8,24 +8,28 @@ namespace ShooterLoop;
 // push the result over that threshold the way drawing it at full opacity might.
 public partial class ArenaBackground : TextureRect
 {
-    private static readonly Texture2D[] Scenes =
-    {
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_arena_nebula.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_boss_battle.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_menu_synthgrid.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_nebula_cyan_violet.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_nebula_magenta_gold.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_nebula_emerald_cyan.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_galaxy_spiral_planets.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_galaxy_ringed_planet.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_galaxy_barred_spiral.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_cyberpunk_cyanmagenta.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_cyberpunk_violetgold.png"),
-        GD.Load<Texture2D>("res://Assets/Sprites/Backgrounds/bg_cyberpunk_topdown.png"),
-    };
+    private const string FolderPath = "res://Assets/Sprites/Backgrounds/";
 
+    // Scanned at runtime rather than a hardcoded list -- DirAccess enumerates res:// paths even in
+    // an exported build (Godot's .pck keeps the original resource paths as the lookup keys), so
+    // dropping a new bg_*.png into this folder or deleting one just works, no code change needed.
     public override void _Ready()
     {
-        Texture = Scenes[GD.Randi() % Scenes.Length];
+        var candidates = new List<Texture2D>();
+        using var dir = DirAccess.Open(FolderPath);
+        if (dir != null)
+        {
+            dir.ListDirBegin();
+            for (string fileName = dir.GetNext(); fileName != ""; fileName = dir.GetNext())
+            {
+                if (dir.CurrentIsDir() || !fileName.EndsWith(".png")) continue;
+                var texture = GD.Load<Texture2D>(FolderPath + fileName);
+                if (texture != null) candidates.Add(texture);
+            }
+            dir.ListDirEnd();
+        }
+
+        if (candidates.Count > 0)
+            Texture = candidates[(int)(GD.Randi() % candidates.Count)];
     }
 }

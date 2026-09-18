@@ -239,7 +239,7 @@ public partial class CharacterSelectMenu : Control
         RefreshRecords(info.Slug);
 
         _descLabel.Text = info.Description ?? "";
-        _confirmButton.Text = isEquipped ? $"Jugar con {info.Name}" : $"Elegir a {info.Name}";
+        _confirmButton.Text = isEquipped ? $"Jugar con {info.Name}" : $"Asignar a {info.Name}";
 
         // IsNullOrWhiteSpace, not != "": CharacterInfo is a struct, so a character that never sets
         // PerkText arrives with null — which is every custom character, since CustomCharacterStore
