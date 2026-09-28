@@ -367,7 +367,16 @@ public partial class GameManager : Node
 
         if (_pendingRoundEnd)
         {
+            // Same re-entry guard as the picker check above, now for the shop -- without it, a
+            // second BeginRoundEnd() (e.g. a boss kill and the round timer landing on the same
+            // frame) would call EndRound() -> Shop.Open() while the previous round's shop is still
+            // up, which resets its _advancing/_closing flags and re-enables "Siguiente Ronda" on an
+            // instance that already advanced the round once. Consumed (not left pending) either
+            // way -- the shop that's already up is already handling this round-end.
+            var shop = GetTree().GetFirstNodeInGroup("shop") as Shop;
             _pendingRoundEnd = false;
+            if (shop != null && shop.Visible) return;
+
             EndRound();
             return;
         }

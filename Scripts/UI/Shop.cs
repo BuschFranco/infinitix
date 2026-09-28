@@ -387,6 +387,12 @@ public partial class Shop : Control
     // this reroll happens to leave nothing pending/affordable.
     private void OnReloadPressed()
     {
+        // Same re-entry guard OnContinuePressed already has. Without it, a reload that lands after
+        // the shop has already started closing (auto-advance, or a fast tap right after Continue —
+        // they're adjacent buttons) re-rolls against GameManager.RoundNumber, which by then has
+        // already moved on to the next round.
+        if (_closing || _advancing) return;
+
         // Still guarded even though RefreshReloadButton disables the button below — a disabled Godot
         // Button can't be pressed, but the guard is what makes that a redundancy rather than the only
         // thing standing between the player and a negative balance.
@@ -461,6 +467,10 @@ public partial class Shop : Control
     {
         if (!Visible || _advancing) return;
         _advancing = true;
+        // Set here too, not just by CheckAutoAdvance's auto-close branch -- a manual Continue press
+        // is closing the shop exactly as much as an auto-advance is, and OnReloadPressed's guard
+        // above needs this true regardless of which path triggered the close.
+        _closing = true;
 
         GameManager.Instance.PopBackHandler(this);
         Juice.ModalOut(_panel, () => Visible = false);
