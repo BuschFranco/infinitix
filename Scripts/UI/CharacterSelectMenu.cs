@@ -225,26 +225,27 @@ public partial class CharacterSelectMenu : Control
         // one, but nothing said so — step once and there was no way back to "which was I using"
         // except memory, and the confirm button read identically either way.
         bool isEquipped = info.Slug == GameManager.Instance.SelectedCharacter;
-        _nameLabel.Text = isEquipped ? $"{info.Name}  ·  ACTUAL" : info.Name;
+        string name = Tr(info.Name);
+        _nameLabel.Text = isEquipped ? string.Format(Tr("{0}  ·  ACTUAL"), name) : name;
 
         // Per-pilot progression, independent of the account-wide level shown on the main menu — a
         // brand-new pilot always reads Level 1 regardless of how long the account has played.
         int level = GameManager.Instance.GetCharacterLevel(info.Slug);
         int xp = GameManager.Instance.GetCharacterXp(info.Slug);
         int xpToNext = GameManager.Instance.GetCharacterXpToNextLevel(info.Slug);
-        _levelLabel.Text = $"Nivel {level}";
+        _levelLabel.Text = string.Format(Tr("Nivel {0}"), level);
         _levelBar.MaxValue = xpToNext;
         _levelBar.Value = xp;
 
         RefreshRecords(info.Slug);
 
-        _descLabel.Text = info.Description ?? "";
-        _confirmButton.Text = isEquipped ? $"Jugar con {info.Name}" : $"Asignar a {info.Name}";
+        _descLabel.Text = info.Description != null ? Tr(info.Description) : "";
+        _confirmButton.Text = isEquipped ? string.Format(Tr("Jugar con {0}"), name) : string.Format(Tr("Asignar a {0}"), name);
 
         // IsNullOrWhiteSpace, not != "": CharacterInfo is a struct, so a character that never sets
         // PerkText arrives with null — which is every custom character, since CustomCharacterStore
         // deliberately leaves perks off them.
-        _perkLabel.Text = info.PerkText ?? "";
+        _perkLabel.Text = info.PerkText != null ? Tr(info.PerkText) : "";
         _perkPanel.Visible = !string.IsNullOrWhiteSpace(info.PerkText);
 
         // Equilibrado and the three stat characters use one box or the other, never both, so the
@@ -282,7 +283,7 @@ public partial class CharacterSelectMenu : Control
     {
         var mode = GameManager.Instance.CurrentGameMode;
         _recordsList.Text = RecordTable.Build(GameManager.LoadCharacterRecords(slug, mode), MaxRecordsShown,
-            CharBudget, "Sin récords todavía");
+            CharBudget, Tr("Sin récords todavía"));
     }
 
     // Sizes the scroll area to exactly the text, capped so the panel can't outgrow the screen.
@@ -341,9 +342,9 @@ public partial class CharacterSelectMenu : Control
         }
 
         dialog.Ask(
-            $"¿Borrar a {info.Name}?",
-            "Se borra el piloto y también la imagen que elegiste para él. No se puede deshacer.",
-            "Borrar",
+            string.Format(Tr("¿Borrar a {0}?"), info.Name),
+            Tr("Se borra el piloto y también la imagen que elegiste para él. No se puede deshacer."),
+            Tr("Borrar"),
             () => PerformDelete(info.Slug));
     }
 

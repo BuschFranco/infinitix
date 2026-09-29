@@ -74,6 +74,15 @@ public partial class GameOverScreen : Control
             string.Format(Tr("+{0} Dinero (total: {1})"), gm.LastRunLibrasEarned, gm.Libras),
         };
 
+        // Names the multiplier that just got applied above so it doesn't read as an unexplained
+        // number — same reasoning CosmeticsShopMenu's "+N" surcharge suffix already follows for the
+        // Tienda's own price inflation.
+        if (gm.ActiveContractNames.Count > 0)
+        {
+            lines.Add(string.Format(Tr("Contratos: {0} (×{1:0.0} Dinero)"),
+                string.Join(", ", gm.ActiveContractNames), gm.ContractLibrasBonusMultiplier));
+        }
+
         // Always shown, even when this run earned 0 Libras — a silent 0 used to read as a bug ("did I
         // not get anything?"). With GameManager.LibrasFreeRounds at 0 every run earns something, but
         // the 0-case stays here (rather than assuming it can't happen) so a future grace period doesn't
@@ -140,6 +149,23 @@ public partial class GameOverScreen : Control
 
             foreach (var achievement in gm.LastRunNewAchievements)
                 achievementCards.Add(BuildAchievementCard(achievement));
+        }
+
+        // Same gold-card treatment, one section down, for milestone rewards (GameManager.
+        // EvaluateAccountMilestones/EvaluateCharacterMilestones) -- appended into the SAME
+        // achievementCards list so the staggered reveal loop below animates both sections as one
+        // continuous sequence instead of needing its own copy of that timing code.
+        if (gm.LastRunNewMilestoneRewards.Count > 0)
+        {
+            var sectionLabel = new Label { Text = Tr("Recompensas de nivel"), HorizontalAlignment = HorizontalAlignment.Center };
+            sectionLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Subtitle);
+            sectionLabel.AddThemeColorOverride("font_color", Palette.UltimatePanelBorder);
+            sectionLabel.Modulate = new Color(1f, 1f, 1f, 0f);
+            _achievementsContainer.AddChild(sectionLabel);
+            summaryLabels.Add(sectionLabel);
+
+            foreach (var reward in gm.LastRunNewMilestoneRewards)
+                achievementCards.Add(BuildMilestoneCard(reward));
         }
 
         Visible = true;
@@ -261,6 +287,59 @@ public partial class GameOverScreen : Control
         return card;
     }
 
+    // Same shape as BuildAchievementCard above -- a MilestoneReward just has a plain icon (or none, for
+    // a Libras-only reward) instead of a fixed tier badge lookup.
+    private PanelContainer BuildMilestoneCard(GameManager.MilestoneReward reward)
+    {
+        var card = new PanelContainer();
+        card.AddThemeStyleboxOverride("panel", UIUtil.CreatePanelStyle(Palette.UltimatePanelBorder));
+        card.Modulate = new Color(1f, 1f, 1f, 0f);
+        if (!DangerLevel.Reduced) card.Scale = new Vector2(0.85f, 0.85f);
+        _achievementsContainer.AddChild(card);
+
+        var row = new HBoxContainer();
+        row.AddThemeConstantOverride("separation", 10);
+        card.AddChild(row);
+
+        if (reward.Icon != null)
+        {
+            row.AddChild(new TextureRect
+            {
+                Texture = reward.Icon,
+                CustomMinimumSize = new Vector2(32f, 32f),
+                ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            });
+        }
+
+        var nameLabel = new Label
+        {
+            Text = reward.Title,
+            SizeFlagsHorizontal = SizeFlags.ExpandFill,
+            AutowrapMode = TextServer.AutowrapMode.WordSmart,
+        };
+        nameLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Body);
+        nameLabel.AddThemeColorOverride("font_color", Colors.White);
+        row.AddChild(nameLabel);
+
+        if (reward.RewardLibras > 0)
+        {
+            row.AddChild(new TextureRect
+            {
+                Texture = LibrasCoinIcon,
+                CustomMinimumSize = new Vector2(16f, 16f),
+                ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            });
+            var rewardLabel = new Label { Text = $"+{reward.RewardLibras}" };
+            rewardLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
+            rewardLabel.AddThemeColorOverride("font_color", Palette.UltimatePanelBorder);
+            row.AddChild(rewardLabel);
+        }
+
+        return card;
+    }
+
     private void RefitScroll() => UIUtil.FitScrollToViewport(_scroll, _panel);
 
     private void OnRestartPressed()
@@ -301,9 +380,9 @@ public partial class GameOverScreen : Control
         }
 
         dialog.Ask(
-            "¿Salir del juego?",
-            "Tu puntaje ya quedó guardado. Se va a cerrar la aplicación.",
-            "Salir",
+            Tr("¿Salir del juego?"),
+            Tr("Tu puntaje ya quedó guardado. Se va a cerrar la aplicación."),
+            Tr("Salir"),
             () => GetTree().Quit());
     }
 }

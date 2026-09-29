@@ -327,7 +327,7 @@ public partial class HUD : Control
                 // Reusing it is what keeps the beep at three beeps rather than one per frame.
                 AudioManager.Instance?.Play(AudioManager.Sfx.Countdown);
             }
-            _roundTimerLabel.Text = "Preparate...";
+            _roundTimerLabel.Text = Tr("Preparate...");
             ResetRoundTimerLook();
             return;
         }
@@ -336,7 +336,7 @@ public partial class HUD : Control
 
         if (GameManager.Instance.IsBossRound)
         {
-            _roundTimerLabel.Text = "¡JEFE!";
+            _roundTimerLabel.Text = Tr("¡JEFE!");
             ResetRoundTimerLook();
             return;
         }
@@ -491,7 +491,7 @@ public partial class HUD : Control
         // which is what made the old one-line version wide enough to reach into the arena — stacked,
         // the same words cost height the badge already has and no width at all.
         var unitLabel = new Label();
-        unitLabel.Text = "XP y monedas";
+        unitLabel.Text = Tr("XP y monedas");
         unitLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
         unitLabel.AddThemeColorOverride("font_color", new Color(0.68f, 0.72f, 0.8f));
         unitLabel.AddThemeColorOverride("font_outline_color", Colors.Black);

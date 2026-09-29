@@ -10,12 +10,16 @@ public partial class ArenaBackground : TextureRect
 {
     private const string FolderPath = "res://Assets/Sprites/Backgrounds/";
 
-    // Scanned at runtime rather than a hardcoded list -- DirAccess enumerates res:// paths even in
-    // an exported build (Godot's .pck keeps the original resource paths as the lookup keys), so
-    // dropping a new bg_*.png into this folder or deleting one just works, no code change needed.
+    // Scanned once and cached rather than re-scanned every call -- DirAccess enumerates res:// paths
+    // even in an exported build (Godot's .pck keeps the original resource paths as the lookup keys),
+    // so dropping a new bg_*.png into this folder or deleting one still just works, no code change
+    // needed, but there's no reason to hit the filesystem again every round transition.
+    private readonly List<Texture2D> _candidates = new();
+
     public override void _Ready()
     {
-        var candidates = new List<Texture2D>();
+        AddToGroup("arena_background");
+
         using var dir = DirAccess.Open(FolderPath);
         if (dir != null)
         {
@@ -24,12 +28,23 @@ public partial class ArenaBackground : TextureRect
             {
                 if (dir.CurrentIsDir() || !fileName.EndsWith(".png")) continue;
                 var texture = GD.Load<Texture2D>(FolderPath + fileName);
-                if (texture != null) candidates.Add(texture);
+                if (texture != null) _candidates.Add(texture);
             }
             dir.ListDirEnd();
         }
 
-        if (candidates.Count > 0)
-            Texture = candidates[(int)(GD.Randi() % candidates.Count)];
+        PickRandom();
+    }
+
+    // Called again on every round transition (see GameManager.StartNextRound, timed to the
+    // RoundTransitionOverlay's darkest frame so the swap is invisible) -- excludes whatever's
+    // currently shown so the change always actually reads as a change when there's more than one
+    // candidate to pick from.
+    public void PickRandom()
+    {
+        if (_candidates.Count == 0) return;
+
+        var pool = _candidates.Count > 1 ? _candidates.FindAll(t => t != Texture) : _candidates;
+        Texture = pool[(int)(GD.Randi() % pool.Count)];
     }
 }

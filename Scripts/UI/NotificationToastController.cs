@@ -22,10 +22,18 @@ public partial class NotificationToastController : VBoxContainer
         if (gm == null) return;
 
         gm.AchievementUnlocked += def => SpawnToast(
-            AchievementCatalog.TierBadges[def.Tier], Palette.UltimatePanelBorder, "¡Logro desbloqueado!", def.Name, def.RewardLibras);
+            AchievementCatalog.TierBadges[def.Tier], Palette.UltimatePanelBorder, Tr("¡Logro desbloqueado!"), Tr(def.Name), def.RewardLibras);
 
         gm.MissionCompleted += (slot, text) => SpawnToast(
-            null, Palette.Player, "¡Misión cumplida!", text, slot.Reward);
+            null, Palette.Player, Tr("¡Misión cumplida!"), text, slot.Reward);
+
+        gm.MilestoneUnlocked += reward => SpawnToast(
+            reward.Icon, Palette.UltimatePanelBorder, Tr("¡Recompensa de nivel!"), reward.Title, reward.RewardLibras);
+
+        // Login streak has no live toast here on purpose: EnsureLoginStreak() runs from
+        // GameManager._Ready(), before Arena.tscn (and therefore this node) exists -- an event fired
+        // there would always have zero subscribers. MainMenu shows it instead, via
+        // GameManager.ConsumeLoginStreakNotice(), the one screen guaranteed on-screen at that moment.
     }
 
     private void SpawnToast(Texture2D icon, Color accent, string kicker, string title, int reward)

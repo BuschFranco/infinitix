@@ -168,7 +168,7 @@ public partial class Shop : Control
         _title.AddThemeColorOverride("font_color", accent);
         _recapLabel.AddThemeColorOverride("font_color", new Color(accent, 0.7f));
 
-        _title.Text = legendary ? "★ TIENDA LEGENDARIA ★" : $"RONDA {recap.Round} COMPLETADA";
+        _title.Text = legendary ? Tr("★ TIENDA LEGENDARIA ★") : string.Format(Tr("RONDA {0} COMPLETADA"), recap.Round);
 
         _titleShimmer?.Kill();
         _titleShimmer = Juice.Shimmer(_title, "theme_override_colors/font_color",
@@ -178,12 +178,12 @@ public partial class Shop : Control
         // thing that failed to happen rather than a thing that didn't apply.
         var parts = new List<string>
         {
-            $"+{recap.Coins} monedas",
-            $"+{recap.Score} puntaje",
+            string.Format(Tr("+{0} monedas"), recap.Coins),
+            string.Format(Tr("+{0} puntaje"), recap.Score),
             $"{recap.Kills} {Glossary.Kills.ToLowerInvariant()}",
         };
-        if (recap.EliteKills > 0) parts.Add($"{recap.EliteKills} especiales");
-        if (recap.Levels > 0) parts.Add($"+{recap.Levels} {(recap.Levels == 1 ? "nivel" : "niveles")}");
+        if (recap.EliteKills > 0) parts.Add(string.Format(Tr("{0} especiales"), recap.EliteKills));
+        if (recap.Levels > 0) parts.Add(string.Format(Tr("+{0} {1}"), recap.Levels, Tr(recap.Levels == 1 ? "nivel" : "niveles")));
 
         _recapLabel.Text = string.Join("  ·  ", parts);
     }
@@ -248,7 +248,7 @@ public partial class Shop : Control
         {
             int roundCost = GetRoundAdjustedCost(i);
             int finalCost = GetCost(i);
-            _cards[i].Configure(_items[i], finalCost, finalCost - roundCost, highlight[i], "Comprar", _purchased[i]);
+            _cards[i].Configure(_items[i], finalCost, finalCost - roundCost, highlight[i], Tr("Comprar"), _purchased[i]);
         }
 
         SyncCardContentHeights();
@@ -285,7 +285,7 @@ public partial class Shop : Control
     // uncoloured label. It's now large and in the same gold as the in-world coin pickup, and it reacts
     // when it changes — the HUD's own coin readout is on a lower CanvasLayer and therefore hidden behind
     // this modal, so this label is the player's only view of their wallet while shopping.
-    private void UpdateCoinsLabel(int coins) => _coinsLabel.Text = $"{coins} monedas";
+    private void UpdateCoinsLabel(int coins) => _coinsLabel.Text = string.Format(Tr("{0} monedas"), coins);
 
     private void PulseCoins(int spent)
     {
@@ -415,8 +415,8 @@ public partial class Shop : Control
 
         _reloadButton.Disabled = !affordable;
         _reloadButton.Text = affordable
-            ? $"Recargar · {_reloadCost} monedas"
-            : $"Recargar · faltan {_reloadCost - coins}";
+            ? string.Format(Tr("Recargar · {0} monedas"), _reloadCost)
+            : string.Format(Tr("Recargar · faltan {0}"), _reloadCost - coins);
 
         RefreshEmptyHint(affordable);
     }
@@ -445,10 +445,10 @@ public partial class Shop : Control
             if (!resolved) { allResolved = false; break; }
 
         _emptyHint.Text = allResolved
-            ? "Ya no queda nada que te sirva de esta tanda."
+            ? Tr("Ya no queda nada que te sirva de esta tanda.")
             : canReload
-                ? "No te alcanza para nada de esto. Podés recargar la tanda o seguir."
-                : "No te alcanza para nada de esto ni para recargar. Seguí a la próxima ronda.";
+                ? Tr("No te alcanza para nada de esto. Podés recargar la tanda o seguir.")
+                : Tr("No te alcanza para nada de esto ni para recargar. Seguí a la próxima ronda.");
     }
 
     private bool AnyPendingAffordable()
@@ -474,6 +474,19 @@ public partial class Shop : Control
 
         GameManager.Instance.PopBackHandler(this);
         Juice.ModalOut(_panel, () => Visible = false);
-        GameManager.Instance.StartNextRound();
+
+        // Round 1 -> Round 2 is the one transition that offers Risk Contracts (see
+        // RiskContractsMenu) -- RoundNumber is still 1 here, since StartNextRound() (which bumps it)
+        // hasn't run yet. Every later "Siguiente Ronda" press goes straight to StartNextRound(), same
+        // as before this existed.
+        if (GameManager.Instance.RoundNumber == 1
+            && GetTree().GetFirstNodeInGroup("risk_contracts") is RiskContractsMenu riskContracts)
+        {
+            riskContracts.Open();
+        }
+        else
+        {
+            GameManager.Instance.StartNextRound();
+        }
     }
 }

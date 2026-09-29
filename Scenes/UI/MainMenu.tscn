@@ -214,18 +214,6 @@ theme_override_font_sizes/font_size = 20
 text = "Mejor puntaje: 0"
 horizontal_alignment = 1
 
-[node name="AccountLevelBarRow" type="CenterContainer" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="AccountLevelBar" type="ProgressBar" parent="VBoxContainer/AccountLevelBarRow"]
-custom_minimum_size = Vector2(220, 10)
-layout_mode = 2
-theme_override_styles/background = SubResource("StyleBoxFlat_account_bar_bg")
-theme_override_styles/fill = SubResource("StyleBoxFlat_account_bar_fill")
-max_value = 5.0
-value = 0.0
-show_percentage = false
-
 [node name="RecordsRow" type="HBoxContainer" parent="VBoxContainer" unique_id=887236592]
 layout_mode = 2
 alignment = 1
@@ -409,9 +397,9 @@ layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -120.0
+offset_left = -125.0
 offset_top = 14.0
-offset_right = 120.0
+offset_right = 125.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_records_panel")
 
@@ -462,6 +450,22 @@ text = "Piloto"
 layout_mode = 2
 alignment = 1
 theme_override_constants/separation = 6
+
+[node name="LevelBarSpacer" type="Control" parent="PlayerInfoBox/PlayerInfoColumn"]
+custom_minimum_size = Vector2(0, 3)
+layout_mode = 2
+
+[node name="LevelBarRow" type="CenterContainer" parent="PlayerInfoBox/PlayerInfoColumn"]
+layout_mode = 2
+
+[node name="AccountLevelBar" type="ProgressBar" parent="PlayerInfoBox/PlayerInfoColumn/LevelBarRow"]
+custom_minimum_size = Vector2(200, 6)
+layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_account_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_account_bar_fill")
+max_value = 5.0
+value = 0.0
+show_percentage = false
 
 [node name="OptionsMenu" parent="." unique_id=1831938219 instance=ExtResource("2")]
 grow_horizontal = 2

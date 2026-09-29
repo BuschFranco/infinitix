@@ -655,7 +655,7 @@ public partial class Boss : ShooterEnemy
         PlayTelegraph(1.2f);
         SpawnFloatingLabel("¡FURIA!", Palette.Warning, 26, new Vector2(-40f, HealthBarOffset - 46f));
         if (GetTree().GetFirstNodeInGroup("danger_director") is DangerDirector director)
-            director.AnnounceThreat("¡EL JEFE SE ENFURECE!");
+            director.AnnounceThreat(Tr("¡EL JEFE SE ENFURECE!"));
 
         switch (_rng.Next(Phase2EffectCount))
         {

@@ -55,7 +55,7 @@ public partial class ProfileIconPicker : Control
             var button = new Button
             {
                 CustomMinimumSize = new Vector2(SwatchSize, SwatchSize),
-                TooltipText = owned ? option.Name : $"{option.Name} ({option.Cost} Dinero) — Tienda",
+                TooltipText = owned ? Tr(option.Name) : string.Format(Tr("{0} ({1} Dinero) — Tienda"), Tr(option.Name), option.Cost),
             };
             button.AddThemeStyleboxOverride("normal", style);
             button.AddThemeStyleboxOverride("hover", style);

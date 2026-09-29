@@ -44,7 +44,7 @@ public partial class BuildsMenu : Control
         // it looked broken — a screen full of question marks with nothing explaining them.
         if (player == null)
         {
-            lines.Add("[color=#ffc24a]Iniciá una operación para ver tu progreso en cada construcción.[/color]");
+            lines.Add($"[color=#ffc24a]{Tr("Iniciá una operación para ver tu progreso en cada construcción.")}[/color]");
             lines.Add("");
         }
 
@@ -55,24 +55,24 @@ public partial class BuildsMenu : Control
             string bonus = BuildCatalog.Bonus(cls);
 
             if (allMet)
-                lines.Add($"[color=#7fff7f]{BuildCatalog.Name(cls)}  ✓ ACTIVA[/color]");
+                lines.Add($"[color=#7fff7f]{Tr(BuildCatalog.Name(cls))}  {Tr("✓ ACTIVA")}[/color]");
             else
-                lines.Add($"[color=#b0bec5]{BuildCatalog.Name(cls)}[/color]");
+                lines.Add($"[color=#b0bec5]{Tr(BuildCatalog.Name(cls))}[/color]");
 
-            lines.Add($"  [color=#90a4ae]{bonus}[/color]");
+            lines.Add($"  [color=#90a4ae]{Tr(bonus)}[/color]");
 
             foreach (var req in reqs)
             {
                 if (player != null && req.IsMet(player))
                 {
-                    lines.Add($"  [color=#7fff7f]✓[/color] {BuildCatalog.RequirementText(req)}  [color=#9aa8ba](tenés {BuildCatalog.CurrentText(req, player)})[/color]");
+                    lines.Add($"  [color=#7fff7f]✓[/color] {Tr(BuildCatalog.RequirementText(req))}  [color=#9aa8ba]{string.Format(Tr("(tenés {0})"), BuildCatalog.CurrentText(req, player))}[/color]");
                 }
                 else
                 {
                     string current = player != null ? BuildCatalog.CurrentText(req, player) : "?";
                     string missing = player != null ? string.Join(", ", BuildCatalog.RewardsThatFulfill(req, player)) : "";
-                    lines.Add($"  [color=#ffc24a]✗[/color] {BuildCatalog.RequirementText(req)}  [color=#9aa8ba](tenés {current})[/color]" +
-                              (missing.Length > 0 ? $"  [color=#ffc24a]→ {missing}[/color]" : ""));
+                    lines.Add($"  [color=#ffc24a]✗[/color] {Tr(BuildCatalog.RequirementText(req))}  [color=#9aa8ba]{string.Format(Tr("(tenés {0})"), current)}[/color]" +
+                              (missing.Length > 0 ? $"  [color=#ffc24a]{string.Format(Tr("→ {0}"), missing)}[/color]" : ""));
                 }
             }
 

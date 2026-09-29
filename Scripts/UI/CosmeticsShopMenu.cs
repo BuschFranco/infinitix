@@ -120,7 +120,7 @@ public partial class CosmeticsShopMenu : Control
         // mode (see RebuildContent).
         _charactersTabButton = new Button
         {
-            Text = "Personajes",
+            Text = Tr("Personajes"),
             CustomMinimumSize = new Vector2(0f, 38f),
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
@@ -131,7 +131,7 @@ public partial class CosmeticsShopMenu : Control
 
         _iconsTabButton = new Button
         {
-            Text = "Íconos",
+            Text = Tr("Íconos"),
             CustomMinimumSize = new Vector2(0f, 38f),
             SizeFlagsHorizontal = SizeFlags.ExpandFill,
         };
@@ -285,7 +285,7 @@ public partial class CosmeticsShopMenu : Control
             var button = new Button
             {
                 CustomMinimumSize = new Vector2(SwatchSize, SwatchSize),
-                TooltipText = option.Cost > 0 ? $"{option.Name} ({option.Cost} Dinero)" : option.Name,
+                TooltipText = option.Cost > 0 ? string.Format(Tr("{0} ({1} Dinero)"), Tr(option.Name), option.Cost) : Tr(option.Name),
             };
             button.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
             grid.AddChild(button);
@@ -312,7 +312,7 @@ public partial class CosmeticsShopMenu : Control
         foreach (var child in _paletteBox.GetChildren()) child.QueueFree();
         _swatches.Clear();
 
-        _sectionLabel.Text = "Pilotos secretos";
+        _sectionLabel.Text = Tr("Pilotos secretos");
 
         foreach (var info in CharacterCatalog.All)
         {
@@ -355,14 +355,14 @@ public partial class CosmeticsShopMenu : Control
         textBox.AddThemeConstantOverride("separation", 2);
         row.AddChild(textBox);
 
-        var nameLabel = new Label { Text = info.Name };
+        var nameLabel = new Label { Text = Tr(info.Name) };
         nameLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Body);
         nameLabel.AddThemeColorOverride("font_color", unlocked ? Colors.White : new Color(0.72f, 0.76f, 0.84f));
         textBox.AddChild(nameLabel);
 
         var descLabel = new Label
         {
-            Text = info.Description ?? "",
+            Text = info.Description != null ? Tr(info.Description) : "",
             AutowrapMode = TextServer.AutowrapMode.WordSmart,
         };
         descLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
@@ -371,14 +371,14 @@ public partial class CosmeticsShopMenu : Control
 
         if (unlocked)
         {
-            var ownedLabel = new Label { Text = "✓ Desbloqueado" };
+            var ownedLabel = new Label { Text = Tr("✓ Desbloqueado") };
             ownedLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Body);
             ownedLabel.AddThemeColorOverride("font_color", Palette.Player);
             row.AddChild(ownedLabel);
         }
         else
         {
-            var buyButton = new Button { Text = $"{info.UnlockCost} Dinero" };
+            var buyButton = new Button { Text = string.Format(Tr("{0} Dinero"), info.UnlockCost) };
             buyButton.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
             Juice.WireButtonFeedback(buyButton);
             string slug = info.Slug;
@@ -414,7 +414,7 @@ public partial class CosmeticsShopMenu : Control
         foreach (var child in _paletteBox.GetChildren()) child.QueueFree();
         _swatches.Clear();
 
-        _sectionLabel.Text = "Íconos de perfil";
+        _sectionLabel.Text = Tr("Íconos de perfil");
 
         foreach (var option in ProfileIconCatalog.Options)
             _paletteBox.AddChild(BuildIconRow(option));
@@ -454,7 +454,7 @@ public partial class CosmeticsShopMenu : Control
         textBox.AddThemeConstantOverride("separation", 2);
         row.AddChild(textBox);
 
-        var nameLabel = new Label { Text = option.Name };
+        var nameLabel = new Label { Text = Tr(option.Name) };
         nameLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Body);
         nameLabel.AddThemeColorOverride("font_color", owned ? Colors.White : new Color(0.72f, 0.76f, 0.84f));
         textBox.AddChild(nameLabel);
@@ -466,14 +466,14 @@ public partial class CosmeticsShopMenu : Control
 
         if (equipped)
         {
-            var equippedLabel = new Label { Text = "✓ Equipado" };
+            var equippedLabel = new Label { Text = Tr("✓ Equipado") };
             equippedLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Body);
             equippedLabel.AddThemeColorOverride("font_color", Palette.Player);
             row.AddChild(equippedLabel);
         }
         else
         {
-            var actionButton = new Button { Text = owned ? "Equipar" : option.Cost > 0 ? $"{option.Cost} Dinero" : "Gratis" };
+            var actionButton = new Button { Text = owned ? Tr("Equipar") : option.Cost > 0 ? string.Format(Tr("{0} Dinero"), option.Cost) : Tr("Gratis") };
             actionButton.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
             Juice.WireButtonFeedback(actionButton);
             string id = option.Id;
@@ -543,7 +543,7 @@ public partial class CosmeticsShopMenu : Control
     // spending Coins already does in the round shop, not a silent number swap.
     private void PulseLibras(int spent)
     {
-        _librasLabel.Text = $"Dinero: {GameManager.Instance.Libras}";
+        _librasLabel.Text = string.Format(Tr("Dinero: {0}"), GameManager.Instance.Libras);
 
         _librasTween?.Kill();
         _librasLabel.PivotOffset = _librasLabel.Size / 2f;
@@ -625,7 +625,7 @@ public partial class CosmeticsShopMenu : Control
 
     public void Open()
     {
-        _librasLabel.Text = $"Dinero: {GameManager.Instance.Libras}";
+        _librasLabel.Text = string.Format(Tr("Dinero: {0}"), GameManager.Instance.Libras);
         RebuildContent();
         RefreshTabs();
         FitToOrientation();

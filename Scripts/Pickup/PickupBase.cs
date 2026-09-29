@@ -74,8 +74,14 @@ public abstract partial class PickupBase : Area2D
             if (_player == null) return;
         }
 
+        // The Imán reward (UpgradeType.Magnet) widens this from the small baseline pull radius every
+        // pickup already has out to the player's actual fire-range ring -- the same "in range" circle
+        // already drawn on screen and already used for auto-targeting, so "attracts everything within
+        // your range" means exactly what it looks like it means.
+        float radius = _player.HasMagnetReward ? _player.EffectiveFireRange : MagnetRadius;
+
         float distance = GlobalPosition.DistanceTo(_player.GlobalPosition);
-        if (distance > MagnetRadius)
+        if (distance > radius)
         {
             _magnetSpeed = 0f;
             return;
@@ -95,7 +101,15 @@ public abstract partial class PickupBase : Area2D
         AudioManager.Instance?.Play(AudioManager.Sfx.Pickup);
 
         OnCollected(player);
-        QueueFree();
+
+        // Deferred, not called directly -- freeing an Area2D from inside its own body_entered handler
+        // fires while the physics server is still flushing this step's collision queries, and freeing
+        // it synchronously tries to unregister its monitoring state mid-flush ("Can't change this
+        // state while flushing queries"). Rare with the old 140px baseline pull (usually one pickup
+        // collected per frame); the Imán reward's much wider EffectiveFireRange radius can land several
+        // at once, which is what actually surfaces it. CallDeferred pushes the free to right after the
+        // flush finishes, same fix Godot's own docs recommend for this exact message.
+        CallDeferred(Node.MethodName.QueueFree);
     }
 
     protected abstract void OnCollected(Player player);

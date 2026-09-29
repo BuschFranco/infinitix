@@ -163,8 +163,10 @@ public static class CosmeticCatalog
     }
 
     // Row headings for the shop, kept here rather than in CosmeticsShopMenu.tscn so a new category
-    // needs no scene edit at all.
-    public static string Label(CosmeticCategory category) => category switch
+    // needs no scene edit at all. TranslationServer.Translate rather than a plain literal -- same
+    // "resolve live against whatever language is active" reasoning as Glossary's properties, since
+    // this is a static method with no Node to call the Tr() shorthand on.
+    public static string Label(CosmeticCategory category) => TranslationServer.Translate(category switch
     {
         // Bullet also colours the fire-range ring: the ring marks where your shots reach, so it reading
     // in the shot's own colour is the point of it -- a separate slot for it just meant the two could
@@ -179,11 +181,11 @@ public static class CosmeticCatalog
         CosmeticCategory.Hud => "Color del borde del HUD",
         CosmeticCategory.KillEffect => "Color del efecto al matar",
         _ => category.ToString(),
-    };
+    });
 
     // Short enough to fit a category tab. Label() above is the full sentence, shown once the tab is
     // selected -- a tab row of "Color del borde del personaje" would not fit anything.
-    public static string ShortLabel(CosmeticCategory category) => category switch
+    public static string ShortLabel(CosmeticCategory category) => TranslationServer.Translate(category switch
     {
         CosmeticCategory.Bullet => "Disparos",
         CosmeticCategory.Trail => "Estela",
@@ -195,7 +197,7 @@ public static class CosmeticCatalog
         CosmeticCategory.Hud => "HUD",
         CosmeticCategory.KillEffect => "Muertes",
         _ => category.ToString(),
-    };
+    });
 
     /// <summary>What "Original" actually looks like for a category — used both as the render-site
     /// fallback and as the shop's preview swatch for the free option.</summary>
@@ -234,11 +236,11 @@ public static class CosmeticCatalog
         _ => Colors.White,
     };
 
-    public static string TierName(CosmeticTier tier) => tier switch
+    public static string TierName(CosmeticTier tier) => TranslationServer.Translate(tier switch
     {
         CosmeticTier.Comun => "Común",
         CosmeticTier.Raro => "Raro",
         CosmeticTier.Epico => "Épico",
         _ => "",
-    };
+    });
 }

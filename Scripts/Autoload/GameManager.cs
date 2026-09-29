@@ -121,6 +121,7 @@ public partial class GameManager : Node
         ApplyOrientation();
         LoadSettings();
         EnsureMissionsForToday();
+        EnsureLoginStreak();
 
         // A true first launch, not just "no name yet" or "no language yet" alone -- an existing
         // player who happens to clear just one of the two save files shouldn't get sent through
@@ -256,6 +257,39 @@ public partial class GameManager : Node
     // RoundEventDirector at round end -- same shape as EventRewardMultiplier above.
     public float EventHpMultiplier = 1f;
     private Timer _slowTimer;
+
+    // --- Risk Contracts (RiskContractsMenu) ---
+    //
+    // The run-wide baseline EnemySpeedMultiplier/EventHpMultiplier/EventRewardMultiplier revert to
+    // once no round event is active, and what a round event's own multiplier now stacks ON TOP of
+    // (see RoundEventDirector) instead of overwriting -- these three fields used to be hardcoded to a
+    // literal 1f everywhere, which left no seam for a "for the whole run" modifier to sit underneath
+    // a per-round one. Set once by RiskContractsMenu.Confirm() right before Arena.tscn loads; reset to
+    // 1f/false by ResetRun() like everything else run-scoped.
+    public float ContractSpeedMultiplier = 1f;
+    public float ContractHpMultiplier = 1f;
+    public float ContractRewardMultiplier = 1f;
+
+    // Extends the same Hardcore-mode filter in UpgradeData.BuildCatalog that already strips Heart/
+    // HitShield/ShieldRegen from the reward pools -- a contract that removes shields for the run reads
+    // as "as if Hardcore's shield rule applied, just for this one system" rather than a second,
+    // parallel filter.
+    public bool ContractNoShield = false;
+
+    // Same idea, narrower: pulls only Heart (max lives) or only Ultimate out of the reward pools,
+    // independent of ContractNoShield -- a contract naming exactly one of these three should never
+    // silently take another away too.
+    public bool ContractNoHeart = false;
+    public bool ContractNoUltimate = false;
+
+    // Multiplies the end-of-run Libras payout in RegisterFinalScore -- the "why take the risk" half of
+    // every contract above. 1f with no contracts taken, so an untouched run's payout is bit-for-bit
+    // what it always was.
+    public float ContractLibrasBonusMultiplier = 1f;
+
+    // Names of the contracts active this run, purely for GameOverScreen's recap line -- set alongside
+    // the fields above, cleared by ResetRun() the same way.
+    public List<string> ActiveContractNames { get; private set; } = new();
 
     // Set once per round by EnemySpawner.EvaluateStatCurves from DifficultyBalancer's survivability
     // catch-up, and read by Player.TakeHit — living here (rather than a direct EnemySpawner<->Player
@@ -480,6 +514,16 @@ public partial class GameManager : Node
         RoundNumber++;
         RoundChanged?.Invoke(RoundNumber);
 
+        // A short fade-to-black-and-back marking the transition into this round -- the background and
+        // obstacle layout swap underneath it, right at its darkest frame, so neither change is ever
+        // seen actually happening. Plays inside the "get ready" countdown below, not instead of it.
+        var transition = GetTree().GetFirstNodeInGroup("round_transition") as RoundTransitionOverlay;
+        transition?.PlayTransition(() =>
+        {
+            (GetTree().GetFirstNodeInGroup("arena_background") as ArenaBackground)?.PickRandom();
+            (GetTree().GetFirstNodeInGroup("obstacle_field") as ObstacleField)?.Randomize();
+        });
+
         // Live, not batched at run end -- one more round just got cleared (the one RoundNumber was
         // at before this increment). Same live-counter reasoning as RegisterKill's TotalEnemiesKilled
         // bump above; RegisterFinalScore no longer re-adds this (see roundsClearedThisRun there).
@@ -673,7 +717,7 @@ public partial class GameManager : Node
         }
 
         var dialog = GetTree().GetFirstNodeInGroup("confirm_dialog") as ConfirmDialog;
-        dialog?.Ask("¿Salir del juego?", "Se va a cerrar la aplicación.", "Salir", () => GetTree().Quit());
+        dialog?.Ask(Tr("¿Salir del juego?"), Tr("Se va a cerrar la aplicación."), Tr("Salir"), () => GetTree().Quit());
     }
 
     public void UpdateCameraExtents()
@@ -905,10 +949,21 @@ public partial class GameManager : Node
         // Read before ResetRun() zeroes RoundNumber. This is the single point both exit paths
         // (death via NotifyPlayerDied, manual quit via AbandonRun) already funnel through, so it
         // covers both without duplicating the award logic at each call site.
-        LastRunLibrasEarned = Mathf.Max(0, RoundNumber - LibrasFreeRounds) * LibrasPerRound;
+        // ContractLibrasBonusMultiplier is 1f unless a Risk Contract was taken this run (see
+        // RiskContractsMenu) -- rounded once, here, rather than left to compound across the two
+        // level-tracking calls below.
+        LastRunLibrasEarned = Mathf.RoundToInt(Mathf.Max(0, RoundNumber - LibrasFreeRounds) * LibrasPerRound * ContractLibrasBonusMultiplier);
         AddLibras(LastRunLibrasEarned);
+
+        // Captured before either XP call so the milestone sweep below knows exactly which levels this
+        // run crossed, not just whether it crossed one -- a big enough Libras payout can cross more
+        // than one 5-level milestone in a single run, especially early when the curve is still flat.
+        int accountLevelBefore = AccountLevel;
+        int characterLevelBefore = GetCharacterLevel(SelectedCharacter);
         LastRunAccountLevelsGained = AddAccountXp(LastRunLibrasEarned);
         LastRunCharacterLevelsGained = AddCharacterXp(SelectedCharacter, LastRunLibrasEarned);
+        EvaluateAccountMilestones(accountLevelBefore, AccountLevel);
+        EvaluateCharacterMilestones(SelectedCharacter, characterLevelBefore, GetCharacterLevel(SelectedCharacter));
 
         NotifyMissionRoundReached(RoundNumber);
 
@@ -1099,6 +1154,51 @@ public partial class GameManager : Node
                 Completed = false,
             };
         }
+
+        SaveMetaProgress();
+    }
+
+    // --- Login streak ---
+    //
+    // Same "compare TodayKey() against a persisted date" shape as EnsureMissionsForToday above,
+    // answering a different question: not "did the day change" but "did the player show up on the
+    // very next calendar day". A gap of 2+ days resets to 1 rather than 0 -- opening the game at all
+    // today is itself day 1 of a (new) streak, not day 0 of nothing.
+    public int LoginStreak { get; private set; }
+    private string _lastLoginDate = "";
+
+    // Not an event, unlike AchievementUnlocked/MilestoneUnlocked -- this fires from GameManager's own
+    // _Ready(), before Arena.tscn (or any other scene) exists to subscribe to it live. MainMenu reads
+    // this once in its own _Ready() instead, the one screen guaranteed to be on screen at that moment.
+    public (int Streak, int Reward)? PendingLoginStreakNotice { get; private set; }
+
+    public (int Streak, int Reward)? ConsumeLoginStreakNotice()
+    {
+        var notice = PendingLoginStreakNotice;
+        PendingLoginStreakNotice = null;
+        return notice;
+    }
+
+    private const int LoginStreakCap = 10;
+
+    public void EnsureLoginStreak()
+    {
+        string today = TodayKey();
+        if (_lastLoginDate == today) return; // already counted today, whether via this call or a prior one
+
+        bool consecutive = _lastLoginDate.Length > 0
+            && System.DateTime.TryParse(_lastLoginDate, out var lastDate)
+            && lastDate.AddDays(1) == System.DateTime.Parse(today);
+
+        LoginStreak = consecutive ? LoginStreak + 1 : 1;
+        _lastLoginDate = today;
+
+        // Capped rather than left to grow forever -- a triple-digit streak paying triple-digit Libras
+        // would badly outrun TotalCoinsEarned-indexed shop inflation (see docs/economy.md), which has
+        // no notion of "but some of this came from just showing up".
+        int reward = 2 + Mathf.Min(LoginStreak, LoginStreakCap) * 2;
+        AddLibras(reward);
+        PendingLoginStreakNotice = (LoginStreak, reward);
 
         SaveMetaProgress();
     }
@@ -1688,6 +1788,70 @@ public partial class GameManager : Node
         return levelsGained;
     }
 
+    // --- Milestone rewards ---
+    //
+    // AccountLevel and per-character level used to be pure numbers with nothing behind them (see the
+    // doc comments above). This is the payoff: every LevelStep levels crossed, on either track, grants
+    // something for free -- MilestoneCatalog decides what, this just tracks which ones have already
+    // been claimed so a level never pays out twice, same idempotent-HashSet shape as
+    // _unlockedAchievements/RedeemedCodes.
+    public readonly record struct MilestoneReward(string Title, int RewardLibras, Texture2D Icon);
+
+    // Fired the instant a milestone is claimed, same shape as AchievementUnlocked -- a toast
+    // subscriber reacts to this; LastRunNewMilestoneRewards below is the end-of-run recap's copy.
+    public event Action<MilestoneReward> MilestoneUnlocked;
+    public List<MilestoneReward> LastRunNewMilestoneRewards { get; private set; } = new();
+
+    // Keys are "account:{level}" or "{slug}:{level}" -- one flat set covers both tracks, the same way
+    // CosmeticCatalog.ItemKey lets one HashSet cover every cosmetic category.
+    private HashSet<string> _claimedMilestones = new();
+
+    private void EvaluateAccountMilestones(int oldLevel, int newLevel)
+    {
+        for (int level = oldLevel + 1; level <= newLevel; level++)
+        {
+            if (!MilestoneCatalog.TryGetAccountReward(level, out string iconId, out int libras)) continue;
+            if (!_claimedMilestones.Add($"account:{level}")) continue;
+
+            MilestoneReward reward;
+            if (iconId != null)
+            {
+                GrantCosmetic(CosmeticCategory.ProfileIcon, iconId);
+                var option = ProfileIconCatalog.Find(iconId);
+                reward = new MilestoneReward(
+                    string.Format(Tr("Nuevo ícono: {0}"), option?.Name ?? iconId),
+                    0, ProfileIconCatalog.Texture(iconId));
+            }
+            else
+            {
+                AddLibras(libras);
+                reward = new MilestoneReward(string.Format(Tr("Nivel de cuenta {0}"), level), libras, null);
+            }
+
+            LastRunNewMilestoneRewards.Add(reward);
+            MilestoneUnlocked?.Invoke(reward);
+        }
+
+        SaveMetaProgress();
+    }
+
+    private void EvaluateCharacterMilestones(string slug, int oldLevel, int newLevel)
+    {
+        string pilotName = CharacterCatalog.Get(slug).Name;
+        for (int level = oldLevel + 1; level <= newLevel; level++)
+        {
+            if (!MilestoneCatalog.TryGetCharacterReward(level, out int libras)) continue;
+            if (!_claimedMilestones.Add($"{slug}:{level}")) continue;
+
+            AddLibras(libras);
+            var reward = new MilestoneReward(string.Format(Tr("{0} — Nivel {1}"), pilotName, level), libras, null);
+            LastRunNewMilestoneRewards.Add(reward);
+            MilestoneUnlocked?.Invoke(reward);
+        }
+
+        SaveMetaProgress();
+    }
+
     private const string CharacterProgressSection = "character_progress";
     private const string MissionsSection = "missions";
     private const string StatsDailySection = "stats_daily";
@@ -1732,6 +1896,10 @@ public partial class GameManager : Node
         config.SetValue(SettingsSection, "ever_got_legendary", everGotLegendary.ToArray());
 
         config.SetValue(SettingsSection, "unlocked_achievements", new List<string>(_unlockedAchievements).ToArray());
+        config.SetValue(SettingsSection, "claimed_milestones", new List<string>(_claimedMilestones).ToArray());
+
+        config.SetValue(SettingsSection, "login_streak", LoginStreak);
+        config.SetValue(SettingsSection, "last_login_date", _lastLoginDate);
 
         config.SetValue(MissionsSection, "date", _missionsDate);
         for (int i = 0; i < Missions.Length; i++)
@@ -1799,6 +1967,11 @@ public partial class GameManager : Node
         OwnedCosmetics = new HashSet<string>(ownedCosmetics);
         var redeemed = (string[])config.GetValue(SettingsSection, "redeemed_codes", System.Array.Empty<string>());
         RedeemedCodes = new HashSet<string>(redeemed);
+        var claimedMilestones = (string[])config.GetValue(SettingsSection, "claimed_milestones", System.Array.Empty<string>());
+        _claimedMilestones = new HashSet<string>(claimedMilestones);
+
+        LoginStreak = (int)config.GetValue(SettingsSection, "login_streak", 0);
+        _lastLoginDate = (string)config.GetValue(SettingsSection, "last_login_date", "");
         _equippedCosmetics.Clear();
         foreach (CosmeticCategory category in System.Enum.GetValues<CosmeticCategory>())
             _equippedCosmetics[category] =
@@ -2103,6 +2276,7 @@ public partial class GameManager : Node
         // live -- see LastRunNewAchievements' comment above for why this can't live inside
         // EvaluateAchievements itself now that it's called from several points during a run.
         LastRunNewAchievements.Clear();
+        LastRunNewMilestoneRewards.Clear();
 
         Xp = 0;
         Level = 1;
@@ -2129,6 +2303,14 @@ public partial class GameManager : Node
         EventRewardMultiplier = 1f;
         EventHpMultiplier = 1f;
         SurvivabilityCatchUpMultiplier = 1f;
+        ContractSpeedMultiplier = 1f;
+        ContractHpMultiplier = 1f;
+        ContractRewardMultiplier = 1f;
+        ContractNoShield = false;
+        ContractNoHeart = false;
+        ContractNoUltimate = false;
+        ContractLibrasBonusMultiplier = 1f;
+        ActiveContractNames.Clear();
         _slowTimer?.Stop();
         _roundStartTimer?.Stop();
         SnapshotRoundStart();

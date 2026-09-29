@@ -138,6 +138,10 @@ public partial class Player : CharacterBody2D
     public bool HasExtraProjectile => _hasExtraProjectile;
     public bool HasOrbitShield => OrbitCount > 0;
 
+    // Read by PickupBase.ApplyMagnet -- once true, every pickup on the field is pulled in from
+    // EffectiveFireRange instead of the small baseline MagnetRadius every pickup already has.
+    public bool HasMagnetReward => _hasMagnetReward;
+
     // Coin payout multiplier applied in GameManager.RegisterKill (Botín reward).
     public float CoinMultiplier => 1f + CoinBonusPercent / 100f;
 
@@ -261,43 +265,45 @@ public partial class Player : CharacterBody2D
     // the build totals instead, the same values LoadoutMenu.cs already reads for its own recap.
     public List<string> BuildCombatStatsLines(bool runEnded = false)
     {
+        string si = Tr("Sí"), no = Tr("No");
         var lines = new List<string>
         {
-            "── COMBATE ──",
+            Tr("── COMBATE ──"),
             $"{Glossary.Damage}: {BulletDamage}   {Glossary.FireRate}: {FireRate:0.0}/s   {Glossary.Crit}: {CritChance:0}%",
-            $"{Glossary.Range}: {FireRange:0}   {Glossary.Pierce}: {BulletPierce}   Rebote: {RicochetCount}",
-            $"Retroceso: {BulletKnockback:0}   {Glossary.Dodge}: {DodgeChance:0}%",
-            $"Disparo en Diagonal: {(HasExtraProjectile ? "Sí" : "No")}   Disparo Paralelo: {ExtraFiringLines}/{MaxExtraFiringLinesCap}",
-            $"Cuchillas Orbitales: {OrbitCount}   Escudo Voltáico: {(ThornsDamage > 0 ? $"{ThornsDamage:0} daño" : "No")}",
+            string.Format(Tr("{0}: {1}   {2}: {3}   Rebote: {4}"), Glossary.Range, FireRange.ToString("0"), Glossary.Pierce, BulletPierce, RicochetCount),
+            string.Format(Tr("Retroceso: {0}   {1}: {2}%"), BulletKnockback.ToString("0"), Glossary.Dodge, DodgeChance.ToString("0")),
+            string.Format(Tr("Disparo en Diagonal: {0}   Disparo Paralelo: {1}/{2}"), HasExtraProjectile ? si : no, ExtraFiringLines, MaxExtraFiringLinesCap),
+            string.Format(Tr("Cuchillas Orbitales: {0}   Escudo Voltáico: {1}"), OrbitCount, ThornsDamage > 0 ? string.Format(Tr("{0} daño"), ThornsDamage.ToString("0")) : no),
             "",
-            "── DEFENSAS ──",
+            Tr("── DEFENSAS ──"),
             runEnded
-                ? $"Vidas (máx): {MaxLives}   Escudos (máx): {MaxShieldCharges}"
-                : $"Vidas: {CurrentLives}/{MaxLives}   Escudos: {CurrentShieldCharges}/{MaxShieldCharges}",
-            $"Regeneración: {(ShieldRegenPerMinute > 0 ? $"{ShieldRegenPerMinute:0.#}/min" : "No")}",
+                ? string.Format(Tr("Vidas (máx): {0}   Escudos (máx): {1}"), MaxLives, MaxShieldCharges)
+                : string.Format(Tr("Vidas: {0}/{1}   Escudos: {2}/{3}"), CurrentLives, MaxLives, CurrentShieldCharges, MaxShieldCharges),
+            string.Format(Tr("Regeneración: {0}"), ShieldRegenPerMinute > 0 ? string.Format(Tr("{0}/min"), ShieldRegenPerMinute.ToString("0.#")) : no),
             "",
-            "── PODERES ──",
+            Tr("── PODERES ──"),
         };
 
         string companionSuffix = HasSecondCompanion ? " (x2)" : "";
-        lines.Add($"Dron: {(CompanionStatPercent > 0 ? $"{CompanionStatPercent * 100:0}%{companionSuffix}" : "No")}");
+        lines.Add(string.Format(Tr("Dron: {0}"), CompanionStatPercent > 0 ? $"{CompanionStatPercent * 100:0}%{companionSuffix}" : no));
 
         // "Nv" here too — this block used to be the one place in the game that said "Lv", three
         // lines below its own "Nv 5" in the status section above. Mina was also simply missing:
         // the loadout panel and the HUD both showed it, this didn't.
-        if (LaserLevel > 0) lines.Add($"Láser: {Glossary.LevelPrefix}{LaserLevel}");
-        if (MissileLevel > 0) lines.Add($"Misil: {Glossary.LevelPrefix}{MissileLevel}");
-        if (MineLevel > 0) lines.Add($"Mina: {Glossary.LevelPrefix}{MineLevel}");
-        if (BurnLevel > 0) lines.Add($"Incendiario: {Glossary.LevelPrefix}{BurnLevel}");
-        if (OndaLevel > 0) lines.Add($"Onda de Choque: {Glossary.LevelPrefix}{OndaLevel}");
-        if (VendavalLevel > 0) lines.Add($"Vendaval: {Glossary.LevelPrefix}{VendavalLevel}");
-        if (EquippedUltimate != null) lines.Add($"Ultimate: {UltimateKindNames.Display(EquippedUltimate.Value)}");
+        if (LaserLevel > 0) lines.Add(string.Format(Tr("Láser: {0}{1}"), Glossary.LevelPrefix, LaserLevel));
+        if (MissileLevel > 0) lines.Add(string.Format(Tr("Misil: {0}{1}"), Glossary.LevelPrefix, MissileLevel));
+        if (MineLevel > 0) lines.Add(string.Format(Tr("Mina: {0}{1}"), Glossary.LevelPrefix, MineLevel));
+        if (BurnLevel > 0) lines.Add(string.Format(Tr("Incendiario: {0}{1}"), Glossary.LevelPrefix, BurnLevel));
+        if (OndaLevel > 0) lines.Add(string.Format(Tr("Onda de Choque: {0}{1}"), Glossary.LevelPrefix, OndaLevel));
+        if (VendavalLevel > 0) lines.Add(string.Format(Tr("Vendaval: {0}{1}"), Glossary.LevelPrefix, VendavalLevel));
+        if (EquippedUltimate != null) lines.Add(string.Format(Tr("Ultimate: {0}"), Tr(UltimateKindNames.Display(EquippedUltimate.Value))));
 
         return lines;
     }
 
     private Polygon2D _shieldAura;
     private bool _hasExtraProjectile = false;
+    private bool _hasMagnetReward = false;
     private float _invulnTimer = 0f;
     // True for the invuln window opened by a hit a shield charge absorbed — blinks the shield aura
     // instead of the ship itself, so a hit that cost you a charge doesn't read identically to one
@@ -2011,6 +2017,9 @@ public partial class Player : CharacterBody2D
             case UpgradeType.ExtraProjectile:
                 _hasExtraProjectile = true;
                 break;
+            case UpgradeType.Magnet:
+                _hasMagnetReward = true;
+                break;
             case UpgradeType.OrbitShield:
                 OrbitCount = Mathf.Max(OrbitCount, (int)upgrade.Value);
                 RefreshOrbitBlades();
@@ -2191,6 +2200,8 @@ public partial class Player : CharacterBody2D
             // could never be flagged as the best offer even when unowned.
             case UpgradeType.ExtraProjectile:
                 return !_hasExtraProjectile;
+            case UpgradeType.Magnet:
+                return !_hasMagnetReward;
             case UpgradeType.OrbitShield:
                 return (int)upgrade.Value > OrbitCount;
             case UpgradeType.Companion:
@@ -2250,6 +2261,8 @@ public partial class Player : CharacterBody2D
         {
             case UpgradeType.ExtraProjectile:
                 return HasExtraProjectile;
+            case UpgradeType.Magnet:
+                return HasMagnetReward;
             case UpgradeType.OrbitShield:
             case UpgradeType.Companion:
             case UpgradeType.SideShot:
@@ -2320,6 +2333,7 @@ public partial class Player : CharacterBody2D
             // Genuine one-offs — you either have it or you don't.
             case UpgradeType.ExtraProjectile:
             case UpgradeType.Ultimate:
+            case UpgradeType.Magnet:
                 return Glossary.Owned;
 
             // Levelled powers: you hold this level or a higher one.
@@ -2369,79 +2383,89 @@ public partial class Player : CharacterBody2D
     public string GetStackInfoText(UpgradeData upgrade)
     {
         bool helps = IsUpgradeOverCurrent(upgrade);
+
+        // Shared fragments, Tr()'d once so every case below reuses the same CSV keys instead of each
+        // spelling out its own near-identical copy.
+        string add = Tr("se suma");
+        string noAdd = string.Format(Tr("no suma ({0})"), Glossary.AtCapSentence);
+        string mejora = Tr("mejora");
+        string noMejora = Tr("no mejora (ya tenés igual o mejor)");
+
         switch (upgrade.Type)
         {
             case UpgradeType.FireRange:
-                return $"Tenés: {FireRange:0} de rango (tope {MaxFireRange:0}) — {(helps ? "se suma" : $"no suma ({Glossary.AtCapSentence})")}";
+                return string.Format(Tr("Tenés: {0} de rango (tope {1}) — {2}"), FireRange.ToString("0"), MaxFireRange.ToString("0"), helps ? add : noAdd);
             case UpgradeType.BulletDamage:
-                return $"Tenés: +{BulletDamage - Mathf.RoundToInt(_baseBulletDamage)} (tope +{(int)MaxBulletDamageBonus}) — {(helps ? "se suma" : $"no suma ({Glossary.AtCapSentence})")}";
+                return string.Format(Tr("Tenés: +{0} (tope +{1}) — {2}"), BulletDamage - Mathf.RoundToInt(_baseBulletDamage), (int)MaxBulletDamageBonus, helps ? add : noAdd);
             case UpgradeType.FireRate:
-                return $"Tenés: {FireRate:0.0}/s (tope {MaxFireRate:0}/s) — {(helps ? "se suma" : $"no suma ({Glossary.AtCapSentence})")}";
+                return string.Format(Tr("Tenés: {0}/s (tope {1}/s) — {2}"), FireRate.ToString("0.0"), MaxFireRate.ToString("0"), helps ? add : noAdd);
             case UpgradeType.MovementSpeed:
-                return $"Tenés: +{MoveSpeed - _baseMoveSpeed:0} (tope +{(int)MaxMoveSpeedBonus}) — {(helps ? "se suma" : $"no suma ({Glossary.AtCapSentence})")}";
+                return string.Format(Tr("Tenés: +{0} (tope +{1}) — {2}"), (MoveSpeed - _baseMoveSpeed).ToString("0"), (int)MaxMoveSpeedBonus, helps ? add : noAdd);
             case UpgradeType.Heart:
-                return $"Tenés: {CurrentLives}/{MaxLives} vidas (tope {MaxLivesCap}) — {(helps ? "+1 al máximo y cura total" : $"no suma ({Glossary.AtCapSentence} y con vidas llenas)")}";
+                return string.Format(Tr("Tenés: {0}/{1} vidas (tope {2}) — {3}"), CurrentLives, MaxLives, MaxLivesCap,
+                    helps ? Tr("+1 al máximo y cura total") : string.Format(Tr("no suma ({0} y con vidas llenas)"), Glossary.AtCapSentence));
             case UpgradeType.HitShield:
-                return $"Tenés: {MaxShieldCharges} cargas (tope {MaxShieldChargesCap}) — {(helps ? "se suma" : $"no suma ({Glossary.AtCapSentence})")}";
+                return string.Format(Tr("Tenés: {0} cargas (tope {1}) — {2}"), MaxShieldCharges, MaxShieldChargesCap, helps ? add : noAdd);
             case UpgradeType.SideShot:
-                return $"Tenés: {ExtraFiringLines} líneas (tope {MaxExtraFiringLinesCap}) — {(helps ? "se suma" : Glossary.AtCapSentence)}";
+                return string.Format(Tr("Tenés: {0} líneas (tope {1}) — {2}"), ExtraFiringLines, MaxExtraFiringLinesCap, helps ? add : Glossary.AtCapSentence);
             case UpgradeType.OrbitShield:
-                return $"Tenés: {OrbitCount} cuchillas (tope 4) — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}";
+                return string.Format(Tr("Tenés: {0} cuchillas (tope 4) — {1}"), OrbitCount, helps ? mejora : noMejora);
             case UpgradeType.Companion:
-                return $"Tenés: {CompanionStatPercent * 100:0}% stats (tope 50%) — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}";
+                return string.Format(Tr("Tenés: {0}% stats (tope 50%) — {1}"), (CompanionStatPercent * 100).ToString("0"), helps ? mejora : noMejora);
             case UpgradeType.Laser:
-                return $"Tenés: Láser {Glossary.LevelPrefix}{LaserLevel} (tope {Glossary.LevelPrefix}4) — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}";
+                return string.Format(Tr("Tenés: Láser {0}{1} (tope {0}4) — {2}"), Glossary.LevelPrefix, LaserLevel, helps ? mejora : noMejora);
             case UpgradeType.Missile:
                 return MissileLevel > 0
-                    ? $"Tenés: Misil {Glossary.LevelPrefix}{MissileLevel} cada {MissileTiers[MissileLevel - 1].Interval:0.#}s — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}"
-                    : "No tenés misiles todavía";
+                    ? string.Format(Tr("Tenés: Misil {0}{1} cada {2}s — {3}"), Glossary.LevelPrefix, MissileLevel, MissileTiers[MissileLevel - 1].Interval.ToString("0.#"), helps ? mejora : noMejora)
+                    : Tr("No tenés misiles todavía");
             case UpgradeType.ShockwaveAura:
                 return OndaLevel > 0
-                    ? $"Tenés: Onda de Choque {Glossary.LevelPrefix}{OndaLevel} cada {OndaTiers[OndaLevel - 1].Interval:0.#}s — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}"
-                    : "No tenés Onda de Choque todavía";
+                    ? string.Format(Tr("Tenés: Onda de Choque {0}{1} cada {2}s — {3}"), Glossary.LevelPrefix, OndaLevel, OndaTiers[OndaLevel - 1].Interval.ToString("0.#"), helps ? mejora : noMejora)
+                    : Tr("No tenés Onda de Choque todavía");
             case UpgradeType.Vendaval:
                 return VendavalLevel > 0
-                    ? $"Tenés: Vendaval {Glossary.LevelPrefix}{VendavalLevel} cada {VendavalTiers[VendavalLevel - 1].Interval:0.#}s — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}"
-                    : "No tenés Vendaval todavía";
+                    ? string.Format(Tr("Tenés: Vendaval {0}{1} cada {2}s — {3}"), Glossary.LevelPrefix, VendavalLevel, VendavalTiers[VendavalLevel - 1].Interval.ToString("0.#"), helps ? mejora : noMejora)
+                    : Tr("No tenés Vendaval todavía");
             case UpgradeType.Mine:
                 return MineLevel > 0
-                    ? $"Tenés: Mina {Glossary.LevelPrefix}{MineLevel} cada {MineTiers[MineLevel - 1].Interval:0.#}s — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}"
-                    : "No tenés minas todavía";
+                    ? string.Format(Tr("Tenés: Mina {0}{1} cada {2}s — {3}"), Glossary.LevelPrefix, MineLevel, MineTiers[MineLevel - 1].Interval.ToString("0.#"), helps ? mejora : noMejora)
+                    : Tr("No tenés minas todavía");
             case UpgradeType.Burn:
                 return BurnLevel > 0
-                    ? $"Tenés: Incendiario {Glossary.LevelPrefix}{BurnLevel} ({BurnTiers[BurnLevel - 1].Dps:0}/seg) — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}"
-                    : "No tenés quemadura todavía";
+                    ? string.Format(Tr("Tenés: Incendiario {0}{1} ({2}/seg) — {3}"), Glossary.LevelPrefix, BurnLevel, BurnTiers[BurnLevel - 1].Dps.ToString("0"), helps ? mejora : noMejora)
+                    : Tr("No tenés quemadura todavía");
             case UpgradeType.Ultimate:
             {
                 string current = EquippedUltimate == null
-                    ? "ninguna"
-                    : UltimateKindNames.Display(EquippedUltimate.Value);
-                return $"Ultimate equipada: {current} — {(helps ? "la reemplaza" : "ya es esta")}";
+                    ? Tr("ninguna")
+                    : Tr(UltimateKindNames.Display(EquippedUltimate.Value));
+                return string.Format(Tr("Ultimate equipada: {0} — {1}"), current, helps ? Tr("la reemplaza") : Tr("ya es esta"));
             }
             case UpgradeType.Pierce:
-                return $"Tenés: atraviesa {BulletPierce} (tope {MaxPierceCap}) — {(helps ? "se suma" : Glossary.AtCapSentence)}";
+                return string.Format(Tr("Tenés: atraviesa {0} (tope {1}) — {2}"), BulletPierce, MaxPierceCap, helps ? add : Glossary.AtCapSentence);
             case UpgradeType.CritChance:
-                return $"Tenés: {CritChance:0}% crítico (tope {MaxCritChance:0}%) — {(helps ? "se suma" : Glossary.AtCapSentence)}";
+                return string.Format(Tr("Tenés: {0}% crítico (tope {1}%) — {2}"), CritChance.ToString("0"), MaxCritChance.ToString("0"), helps ? add : Glossary.AtCapSentence);
             case UpgradeType.CoinBonus:
-                return $"Tenés: +{CoinBonusPercent:0}% monedas (tope {MaxCoinBonusPercent:0}%) — {(helps ? "se suma" : Glossary.AtCapSentence)}";
+                return string.Format(Tr("Tenés: +{0}% monedas (tope {1}%) — {2}"), CoinBonusPercent.ToString("0"), MaxCoinBonusPercent.ToString("0"), helps ? add : Glossary.AtCapSentence);
             case UpgradeType.XpBonus:
-                return $"Tenés: +{XpBonusPercent:0}% experiencia (tope {MaxXpBonusPercent:0}%) — {(helps ? "se suma" : Glossary.AtCapSentence)}";
+                return string.Format(Tr("Tenés: +{0}% experiencia (tope {1}%) — {2}"), XpBonusPercent.ToString("0"), MaxXpBonusPercent.ToString("0"), helps ? add : Glossary.AtCapSentence);
             case UpgradeType.BulletKnockback:
-                return $"Tenés: +{BulletKnockback:0} empuje (tope {MaxBulletKnockbackBonus:0}) — {(helps ? "se suma" : $"no suma (ya tenés una de mejor {Glossary.Rarity})")}";
+                return string.Format(Tr("Tenés: +{0} empuje (tope {1}) — {2}"), BulletKnockback.ToString("0"), MaxBulletKnockbackBonus.ToString("0"),
+                    helps ? add : string.Format(Tr("no suma (ya tenés una de mejor {0})"), Glossary.Rarity));
             case UpgradeType.ShieldRegen:
                 return ShieldRegenPerMinute > 0f
-                    ? $"Tenés: 1 carga cada {60f / ShieldRegenPerMinute:0.#}s — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}"
-                    : "No tenés regeneración de escudo todavía";
+                    ? string.Format(Tr("Tenés: 1 carga cada {0}s — {1}"), (60f / ShieldRegenPerMinute).ToString("0.#"), helps ? mejora : noMejora)
+                    : Tr("No tenés regeneración de escudo todavía");
             case UpgradeType.Dodge:
-                return $"Tenés: {DodgeChance:0}% esquiva (tope 25%) — {(helps ? "se suma" : Glossary.AtCapSentence)}";
+                return string.Format(Tr("Tenés: {0}% esquiva (tope 25%) — {1}"), DodgeChance.ToString("0"), helps ? add : Glossary.AtCapSentence);
             case UpgradeType.Fortune:
-                return $"Tenés: +{FortuneBonus:0}% fortuna (tope 17%) — {(helps ? "se suma" : Glossary.AtCapSentence)}";
+                return string.Format(Tr("Tenés: +{0}% fortuna (tope 17%) — {1}"), FortuneBonus.ToString("0"), helps ? add : Glossary.AtCapSentence);
             case UpgradeType.Ricochet:
-                return $"Tenés: {RicochetCount} rebotes (tope 4) — {(helps ? "se suma" : Glossary.AtCapSentence)}";
+                return string.Format(Tr("Tenés: {0} rebotes (tope 4) — {1}"), RicochetCount, helps ? add : Glossary.AtCapSentence);
             case UpgradeType.Thorns:
                 return ThornsDamage > 0f
-                    ? $"Tenés: {ThornsDamage:0} daño de escudo voltáico — {(helps ? "mejora" : "no mejora (ya tenés igual o mejor)")}"
-                    : "No tenés escudo voltáico todavía";
+                    ? string.Format(Tr("Tenés: {0} daño de escudo voltáico — {1}"), ThornsDamage.ToString("0"), helps ? mejora : noMejora)
+                    : Tr("No tenés escudo voltáico todavía");
             default:
                 return null;
         }

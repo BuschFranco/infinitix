@@ -118,3 +118,316 @@ Onda de Choque,Shockwave
 Vendaval,Gale
 Regeneración de escudo,Shield regen
 Ultimate,Ultimate
+CONTRATOS DE RIESGO,RISK CONTRACTS
+"Sobreviviste la primera ronda. Elegí hasta 2 — suben la dificultad del resto de la operación a cambio de más Dinero al final.","You survived the first round. Pick up to 2 — they raise the difficulty of the rest of the operation in exchange for more Dinero at the end."
+Confirmar y seguir,Confirm and continue
+"Nuevo ícono: {0}","New icon: {0}"
+"Nivel de cuenta {0}","Account level {0}"
+"{0} — Nivel {1}","{0} — Level {1}"
+"Contratos: {0} (×{1:0.0} Dinero)","Contracts: {0} (×{1:0.0} Dinero)"
+Recompensas de nivel,Level rewards
+"{0} días seguidos","{0} days in a row"
+"🔥 Racha de {0} días  ·  +{1} Dinero","🔥 {0}-day streak  ·  +{1} Dinero"
+★ TIENDA LEGENDARIA ★,★ LEGENDARY SHOP ★
+"RONDA {0} COMPLETADA","ROUND {0} COMPLETE"
+"+{0} monedas","+{0} coins"
+"+{0} puntaje","+{0} score"
+"{0} especiales","{0} special"
+nivel,level
+niveles,levels
+"+{0} {1}","+{0} {1}"
+Comprar,Buy
+"{0} monedas","{0} coins"
+"Recargar · {0} monedas","Reload · {0} coins"
+"Recargar · faltan {0}","Reload · {0} short"
+Ya no queda nada que te sirva de esta tanda.,Nothing left here that helps you this round.
+No te alcanza para nada de esto. Podés recargar la tanda o seguir.,You can't afford any of this. You can reload the batch or continue.
+No te alcanza para nada de esto ni para recargar. Seguí a la próxima ronda.,You can't afford any of this or a reload. Continue to the next round.
+¡SUBISTE DE NIVEL! Elige una mejora,LEVEL UP! Choose an upgrade
+¡JEFE DERROTADO! Elige tu Ultimate,BOSS DEFEATED! Choose your Ultimate
+Elección gratuita — no gastás monedas,Free pick — no coins spent
+Ya tenés todo esto al máximo,You already have all of this maxed out
+Ninguna de estas opciones te suma nada. Elegí cualquiera para seguir.,None of these options add anything. Pick any to continue.
+Elegir,Choose
+Común,Common
+Raro,Rare
+Épico,Epic
+Legendario,Legendary
+MEJORA,IMPROVES
+NO SUMA,NO GAIN
+GRATIS,FREE
+" (+{0} por repetir)"," (+{0} for repeat purchase)"
+"{0}{1} monedas","{0}{1} coins"
+Comprada,Bought
+"Faltan {0}","{0} short"
+"¡Con esta recompensa armás la build ""{0}""!","This reward completes the ""{0}"" build!"
+ARMAS,WEAPONS
+DEFENSAS,DEFENSES
+PODERES,POWERS
+Balas Afiladas,Sharp Rounds
+Fuego Rápido,Rapid Fire
+Alcance de Disparo,Firing Range
+Rebote,Ricochet
+Retroceso,Knockback
+Disparo en Diagonal,Diagonal Shot
+activo,active
+Disparo Paralelo,Parallel Shot
+Botín,Loot
+Sabiduría,Wisdom
+Fortuna,Fortune
+Vidas,Lives
+Escudos,Shields
+Regeneración,Regen
+Cuchillas Orbitales,Orbital Blades
+Dron,Drone
+Incendiario,Incendiary
+Escudo Voltáico,Voltaic Shield
+"{0} daño","{0} damage"
+"{0} enemigos","{0} enemies"
+"{0} rebotes","{0} ricochets"
+"{0} líneas (tope {1})","{0} lines (cap {1})"
+"+{0}% monedas","+{0}% coins"
+"+{0}% Raro/Épico/Legendario","+{0}% Rare/Epic/Legendary"
+"{0} (tope {1})","{0} (cap {1})"
+"{0} cargas (tope {1})","{0} charges (cap {1})"
+"{0} cargas/min","{0} charges/min"
+"{0}% de tus estadísticas","{0}% of your stats"
+No tenés items equipados todavía.,You don't have any items equipped yet.
+✓ ACTIVA,✓ ACTIVE
+"(tenés {0})","(you have {0})"
+"falta: {0}","missing: {0}"
+Iniciá una operación para ver tu progreso en cada construcción.,Start an operation to see your progress on each build.
+"→ {0}","→ {0}"
+Total,Total
+Mes,Month
+Semana,Week
+ACTIVIDAD RECIENTE (7 DÍAS),RECENT ACTIVITY (7 DAYS)
+ACTIVIDAD,ACTIVITY
+"Enemigos
+eliminados","Enemies
+defeated"
+"Jefes
+derrotados","Bosses
+defeated"
+Críticos,Crits
+"Rondas
+superadas","Rounds
+cleared"
+"Monedas
+ganadas","Coins
+earned"
+"Dinero
+ganado","Dinero
+earned"
+"Partidas
+jugadas","Runs
+played"
+"Tiempo
+jugado","Time
+played"
+PROGRESO,PROGRESS
+"Precisión
+(críticos)","Accuracy
+(crits)"
+Logros,Achievements
+Builds,Builds
+"Legendarias
+distintas","Distinct
+Legendaries"
+RESUMEN GENERAL,OVERALL SUMMARY
+"Mejor
+puntaje","Best
+score"
+"Mejor ronda
+alcanzada","Best round
+reached"
+"Nivel de
+cuenta","Account
+level"
+"Misiones
+completadas","Missions
+completed"
+"Personajes
+desbloqueados","Characters
+unlocked"
+"Cosméticos
+comprados","Cosmetics
+bought"
+Progreso,Progress
+Combate,Combat
+Se renuevan mañana,Renews tomorrow
+"Matá {0} enemigos","Kill {0} enemies"
+Derrotá un jefe,Defeat a boss
+"Llegá a la ronda {0}","Reach round {0}"
+"Ganá {0} Dinero","Earn {0} Dinero"
+Comprá un cosmético,Buy a cosmetic
+¡Logro desbloqueado!,Achievement unlocked!
+¡Misión cumplida!,Mission complete!
+¡Recompensa de nivel!,Level reward!
+Se va a cerrar la aplicación.,The app will close.
+"¿Borrar a {0}?","Delete {0}?"
+Se borra el piloto y también la imagen que elegiste para él. No se puede deshacer.,This deletes the pilot and the photo you picked for them. This can't be undone.
+Borrar,Delete
+"{0}  ·  ACTUAL","{0}  ·  CURRENT"
+"Nivel {0}","Level {0}"
+"Jugar con {0}","Play as {0}"
+"Asignar a {0}","Assign {0}"
+Sin récords todavía,No records yet
+Personajes,Pilots
+Íconos,Icons
+"{0} ({1} Dinero)","{0} ({1} Dinero)"
+Pilotos secretos,Secret pilots
+✓ Desbloqueado,✓ Unlocked
+"{0} Dinero","{0} Dinero"
+Íconos de perfil,Profile icons
+✓ Equipado,✓ Equipped
+Equipar,Equip
+Gratis,Free
+"{0} ({1} Dinero) — Tienda","{0} ({1} Dinero) — Shop"
+No pude abrir la galería.,I couldn't open the gallery.
+No pude cargar la imagen.,I couldn't load the image.
+No pude leer esa imagen.,I couldn't read that image.
+Ponele un nombre.,Give it a name.
+"El nombre no puede pasar de {0} caracteres.","The name can't be longer than {0} characters."
+"La descripción no puede pasar de {0} caracteres.","The description can't be longer than {0} characters."
+Elegí una imagen.,Pick an image.
+No pude guardar la imagen.,I couldn't save the image.
+"¡RONDA DE JEFE {0}!","BOSS ROUND {0}!"
+AMENAZA CRECIENTE,GROWING THREAT
+ZONA HOSTIL,HOSTILE ZONE
+PELIGRO MÁXIMO,MAXIMUM DANGER
+¡LLUVIA DE MISILES!,MISSILE STRIKE!
+¡NIEBLA!,FOG!
+¡FRENESÍ! BOTÍN DOBLE,FRENZY! DOUBLE LOOT
+¡ZONA QUE SE ENCOGE!,SHRINKING ZONE!
+¡CAMPO MINADO!,MINEFIELD!
+¡BLINDAJE! BOTÍN +60%,ARMOR! LOOT +60%
+¡EL JEFE SE ENFURECE!,THE BOSS ENRAGES!
+Preparate...,Get ready...
+¡JEFE!,BOSS!
+XP y monedas,XP and coins
+Movimiento reducido: SÍ,Reduced motion: YES
+Movimiento reducido: NO,Reduced motion: NO
+Sí,Yes
+No,No
+── COMBATE ──,── COMBAT ──
+"{0}: {1}   {2}: {3}   Rebote: {4}","{0}: {1}   {2}: {3}   Ricochet: {4}"
+"Retroceso: {0}   {1}: {2}%","Knockback: {0}   {1}: {2}%"
+"Disparo en Diagonal: {0}   Disparo Paralelo: {1}/{2}","Diagonal Shot: {0}   Parallel Shot: {1}/{2}"
+"Cuchillas Orbitales: {0}   Escudo Voltáico: {1}","Orbital Blades: {0}   Voltaic Shield: {1}"
+── DEFENSAS ──,── DEFENSES ──
+"Vidas (máx): {0}   Escudos (máx): {1}","Lives (max): {0}   Shields (max): {1}"
+"Vidas: {0}/{1}   Escudos: {2}/{3}","Lives: {0}/{1}   Shields: {2}/{3}"
+"Regeneración: {0}","Regen: {0}"
+"{0}/min","{0}/min"
+── PODERES ──,── POWERS ──
+"Dron: {0}","Drone: {0}"
+"Láser: {0}{1}","Laser: {0}{1}"
+"Misil: {0}{1}","Missile: {0}{1}"
+"Mina: {0}{1}","Mine: {0}{1}"
+"Incendiario: {0}{1}","Incendiary: {0}{1}"
+"Onda de Choque: {0}{1}","Shockwave: {0}{1}"
+"Vendaval: {0}{1}","Gale: {0}{1}"
+"Ultimate: {0}","Ultimate: {0}"
+se suma,adds up
+"no suma ({0})","doesn't add ({0})"
+mejora,improves
+no mejora (ya tenés igual o mejor),doesn't improve (you already have this or better)
+"Tenés: {0} de rango (tope {1}) — {2}","You have: {0} range (cap {1}) — {2}"
+"Tenés: +{0} (tope +{1}) — {2}","You have: +{0} (cap +{1}) — {2}"
+"Tenés: {0}/s (tope {1}/s) — {2}","You have: {0}/s (cap {1}/s) — {2}"
+"Tenés: {0}/{1} vidas (tope {2}) — {3}","You have: {0}/{1} lives (cap {2}) — {3}"
++1 al máximo y cura total,+1 to max and full heal
+"no suma ({0} y con vidas llenas)","doesn't add ({0} and lives already full)"
+"Tenés: {0} cargas (tope {1}) — {2}","You have: {0} charges (cap {1}) — {2}"
+"Tenés: {0} líneas (tope {1}) — {2}","You have: {0} lines (cap {1}) — {2}"
+"Tenés: {0} cuchillas (tope 4) — {1}","You have: {0} blades (cap 4) — {1}"
+"Tenés: {0}% stats (tope 50%) — {1}","You have: {0}% stats (cap 50%) — {1}"
+"Tenés: Láser {0}{1} (tope {0}4) — {2}","You have: Laser {0}{1} (cap {0}4) — {2}"
+"Tenés: Misil {0}{1} cada {2}s — {3}","You have: Missile {0}{1} every {2}s — {3}"
+No tenés misiles todavía,You don't have any missiles yet
+"Tenés: Onda de Choque {0}{1} cada {2}s — {3}","You have: Shockwave {0}{1} every {2}s — {3}"
+No tenés Onda de Choque todavía,You don't have Shockwave yet
+"Tenés: Vendaval {0}{1} cada {2}s — {3}","You have: Gale {0}{1} every {2}s — {3}"
+No tenés Vendaval todavía,You don't have Gale yet
+"Tenés: Mina {0}{1} cada {2}s — {3}","You have: Mine {0}{1} every {2}s — {3}"
+No tenés minas todavía,You don't have any mines yet
+"Tenés: Incendiario {0}{1} ({2}/seg) — {3}","You have: Incendiary {0}{1} ({2}/sec) — {3}"
+No tenés quemadura todavía,You don't have burn yet
+ninguna,none
+"Ultimate equipada: {0} — {1}","Ultimate equipped: {0} — {1}"
+la reemplaza,replaces it
+ya es esta,already this one
+"Tenés: atraviesa {0} (tope {1}) — {2}","You have: pierces {0} (cap {1}) — {2}"
+"Tenés: {0}% crítico (tope {1}%) — {2}","You have: {0}% crit (cap {1}%) — {2}"
+"Tenés: +{0}% monedas (tope {1}%) — {2}","You have: +{0}% coins (cap {1}%) — {2}"
+"Tenés: +{0}% experiencia (tope {1}%) — {2}","You have: +{0}% XP (cap {1}%) — {2}"
+"Tenés: +{0} empuje (tope {1}) — {2}","You have: +{0} knockback (cap {1}) — {2}"
+"no suma (ya tenés una de mejor {0})","doesn't add (you already have a better one, by {0})"
+"Tenés: 1 carga cada {0}s — {1}","You have: 1 charge every {0}s — {1}"
+No tenés regeneración de escudo todavía,You don't have shield regen yet
+"Tenés: {0}% esquiva (tope 25%) — {1}","You have: {0}% dodge (cap 25%) — {1}"
+"Tenés: +{0}% fortuna (tope 17%) — {1}","You have: +{0}% fortune (cap 17%) — {1}"
+"Tenés: {0} rebotes (tope 4) — {1}","You have: {0} ricochets (cap 4) — {1}"
+"Tenés: {0} daño de escudo voltáico — {1}","You have: {0} voltaic shield damage — {1}"
+No tenés escudo voltáico todavía,You don't have a voltaic shield yet
+Siguiente Ronda,Next Round
+★ MEJOR,★ BEST
+LOGROS,ACHIEVEMENTS
+CONTRATAR PILOTO,HIRE PILOT
+Elegir imagen,Choose image
+Se recorta en círculo automáticamente.,Cropped into a circle automatically.
+Guardar,Save
+TUS PILOTOS,YOUR PILOTS
+BONIFICACIÓN,PERK
++ Crear piloto,+ Create pilot
+Sin contratar — fichalo en la Tienda,Not hired — sign them in the Shop
+CONSTRUCCIONES,BUILDS
+Armá una build y activá su bonus automáticamente,Put together a build to activate its bonus automatically
+TIENDA,SHOP
+ELEGÍ EL MODO,CHOOSE THE MODE
+Clásico,Classic
+La experiencia de siempre — vidas y escudo se consiguen como recompensa.,The usual experience — lives and shield are earned as rewards.
+Jugar Clásico,Play Classic
+Hardcore,Hardcore
+"Un solo corazón, siempre — sin recompensas de escudo ni de corazón.","One heart, always — no shield or heart rewards."
+Jugar Hardcore,Play Hardcore
+STATS FINALES,FINAL STATS
+EQUIPO Y CONSTRUCCIONES,LOADOUT AND BUILDS
+ESTADÍSTICAS,STATS
+Qué ganás,What you gain
+Nombre,Name
+"Estadísticas base, sin ventajas ni desventajas.","Base stats, no upsides or downsides."
+Sin escudos,No shields
+"No se ofrece Barrera ni Regeneración esta operación.","No Barrier or Regen offered this operation."
+Enemigos más veloces,Faster enemies
+"+20% de velocidad de movimiento en todos los enemigos.","+20% movement speed on every enemy."
+Enemigos más resistentes,Tougher enemies
+"+25% de vida en todos los enemigos.","+25% HP on every enemy."
+Sin corazones,No hearts
+"No se ofrece Corazón esta operación — tu vida máxima queda fija.","No Heart offered this operation — your max life stays fixed."
+Sin Ultimate,No Ultimate
+No se ofrece ninguna Ultimate esta operación.,No Ultimate offered this operation.
+Enemigos muy veloces,Very fast enemies
+"+35% de velocidad de movimiento en todos los enemigos.","+35% movement speed on every enemy."
+Enemigos muy resistentes,Very tough enemies
+"+45% de vida en todos los enemigos.","+45% HP on every enemy."
+Doble riesgo,Double trouble
+"+15% de velocidad y +15% de vida en todos los enemigos.","+15% speed and +15% HP on every enemy."
+Botín reducido,Reduced loot
+"-20% de monedas y XP ganados durante toda la operación.","-20% coins and XP earned for the whole operation."
+"{0}
+{1}
++{2}% Dinero","{0}
+{1}
++{2}% Dinero"
+"Bono total: +{0}% Dinero","Total bonus: +{0}% Dinero"
+Sin contratos elegidos — Dinero normal.,No contracts chosen — normal Dinero.
+Rayo,Bolt
+Cohete,Rocket
+Mira,Reticle
+Corona,Crown
+Diamante,Diamond
+Calavera,Skull
+Imán,Magnet
+"Atrae todos los objetos dentro de tu alcance de disparo, para siempre","Pulls every item within your fire range toward you, forever"

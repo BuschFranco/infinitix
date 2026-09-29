@@ -29,6 +29,7 @@ public enum UpgradeType
     Ricochet,
     Thorns,
     Mine,
+    Magnet,
 }
 
 public enum RewardTier
@@ -209,6 +210,7 @@ public class UpgradeData
             new("Corazón", "+1 vida máxima, cura todo", UpgradeType.Heart, RewardTier.Legendary, 1f, cost: 60, source: RewardSource.Shop),
             new("Regeneración+", "+1 escudo cada 7.5s", UpgradeType.ShieldRegen, RewardTier.Legendary, 8f, cost: 75, source: RewardSource.Shop),
             new("Vendaval II", "Ráfaga frontal cada 3.6s (140 daño, alcance 320)", UpgradeType.Vendaval, RewardTier.Legendary, 2f, cost: 115, source: RewardSource.Shop),
+            new("Imán", "Atrae todos los objetos dentro de tu alcance de disparo, para siempre", UpgradeType.Magnet, RewardTier.Legendary, cost: 70, source: RewardSource.Shop),
         },
     };
 
@@ -223,10 +225,24 @@ public class UpgradeData
         // catalog itself means there's nothing for that fallback to resurrect.
         bool hardcore = GameManager.Instance?.CurrentGameMode == GameManager.GameMode.Hardcore;
 
+        // Same filter-at-the-source reasoning as Hardcore above, for the "Sin escudos" Risk Contract
+        // (see RiskContractCatalog/RiskContractsMenu) -- narrower than Hardcore's rule, since the
+        // contract is specifically about shields, not lives: Heart stays offered, only Barrier/
+        // Regeneración are pulled.
+        bool noShieldContract = GameManager.Instance?.ContractNoShield ?? false;
+
+        // Same shape again for the two single-reward Risk Contracts -- each pulls exactly the one
+        // type it names, independent of the other two filters above.
+        bool noHeartContract = GameManager.Instance?.ContractNoHeart ?? false;
+        bool noUltimateContract = GameManager.Instance?.ContractNoUltimate ?? false;
+
         var filtered = new Dictionary<RewardTier, List<UpgradeData>>();
         foreach (var kv in full)
             filtered[kv.Key] = kv.Value.FindAll(u => (u.Source & source) != 0
-                && (!hardcore || (u.Type != UpgradeType.Heart && u.Type != UpgradeType.HitShield && u.Type != UpgradeType.ShieldRegen)));
+                && (!hardcore || (u.Type != UpgradeType.Heart && u.Type != UpgradeType.HitShield && u.Type != UpgradeType.ShieldRegen))
+                && (!noShieldContract || (u.Type != UpgradeType.HitShield && u.Type != UpgradeType.ShieldRegen))
+                && (!noHeartContract || u.Type != UpgradeType.Heart)
+                && (!noUltimateContract || u.Type != UpgradeType.Ultimate));
         return filtered;
     }
 

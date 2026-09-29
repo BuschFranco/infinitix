@@ -265,7 +265,7 @@ public partial class OptionsMenu : Control
     }
 
     private void UpdateReducedMotionLabel(bool enabled) =>
-        _reducedMotionButton.Text = enabled ? "Movimiento reducido: SÍ" : "Movimiento reducido: NO";
+        _reducedMotionButton.Text = enabled ? Tr("Movimiento reducido: SÍ") : Tr("Movimiento reducido: NO");
 
     // No separate mute buttons: a slider that reaches 0 already is the mute, same as the two opacity
     // settings above, and each setter drives its audio bus directly so dragging is audible live.

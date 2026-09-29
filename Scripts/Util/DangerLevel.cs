@@ -92,11 +92,15 @@ public static class DangerLevel
     // pre-round countdown, the round summary, the boss banner and the boss's own arrival — a fifth
     // overlay there is noise. These rounds each coincide with a real escalation step instead (9 is
     // where the alarm bars first appear), and the callout gets the screen to itself.
-    public static string ThreatCallout(int round) => round switch
+    public static string ThreatCallout(int round)
     {
-        9 => "AMENAZA CRECIENTE",
-        14 => "ZONA HOSTIL",
-        19 => "PELIGRO MÁXIMO",
-        _ => null,
-    };
+        string text = round switch
+        {
+            9 => "AMENAZA CRECIENTE",
+            14 => "ZONA HOSTIL",
+            19 => "PELIGRO MÁXIMO",
+            _ => null,
+        };
+        return text == null ? null : TranslationServer.Translate(text);
+    }
 }

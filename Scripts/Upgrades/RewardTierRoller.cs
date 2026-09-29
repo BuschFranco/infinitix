@@ -77,12 +77,15 @@ public static class RewardTierRoller
         _ => Colors.White,
     };
 
-    public static string GetTierName(RewardTier tier) => tier switch
+    // TranslationServer.Translate rather than a plain literal -- same "resolve live against whatever
+    // language is active" reasoning as Glossary's properties, since this is a static method with no
+    // Node to call the Tr() shorthand on.
+    public static string GetTierName(RewardTier tier) => TranslationServer.Translate(tier switch
     {
         RewardTier.Common => "Común",
         RewardTier.Rare => "Raro",
         RewardTier.Epic => "Épico",
         RewardTier.Legendary => "Legendario",
         _ => tier.ToString(),
-    };
+    });
 }

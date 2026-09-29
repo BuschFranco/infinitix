@@ -51,9 +51,9 @@ public partial class AchievementsMenu : Control
         grid.AddThemeConstantOverride("v_separation", 6);
         _content.AddChild(grid);
 
-        AddCategoryTab(grid, AchievementCategory.Progress, "Progreso");
-        AddCategoryTab(grid, AchievementCategory.Combat, "Combate");
-        AddCategoryTab(grid, AchievementCategory.Builds, "Builds");
+        AddCategoryTab(grid, AchievementCategory.Progress, Tr("Progreso"));
+        AddCategoryTab(grid, AchievementCategory.Combat, Tr("Combate"));
+        AddCategoryTab(grid, AchievementCategory.Builds, Tr("Builds"));
     }
 
     private void AddCategoryTab(GridContainer grid, AchievementCategory category, string label)
@@ -154,7 +154,7 @@ public partial class AchievementsMenu : Control
         };
         nameRow.AddChild(badgeIcon);
 
-        var nameLabel = new Label { Text = def.Name, SizeFlagsHorizontal = SizeFlags.ExpandFill };
+        var nameLabel = new Label { Text = Tr(def.Name), SizeFlagsHorizontal = SizeFlags.ExpandFill };
         nameLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Body);
         nameLabel.AddThemeColorOverride("font_color", unlocked ? Colors.White : new Color(0.72f, 0.76f, 0.84f));
         nameRow.AddChild(nameLabel);
@@ -181,7 +181,7 @@ public partial class AchievementsMenu : Control
         rewardLabel.AddThemeColorOverride("font_color", unlocked ? Palette.UltimatePanelBorder : new Color(0.75f, 0.55f, 1f));
         nameRow.AddChild(rewardLabel);
 
-        var descLabel = new Label { Text = def.Description };
+        var descLabel = new Label { Text = Tr(def.Description) };
         descLabel.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
         descLabel.AddThemeColorOverride("font_color", new Color(0.65f, 0.72f, 0.82f));
         box.AddChild(descLabel);

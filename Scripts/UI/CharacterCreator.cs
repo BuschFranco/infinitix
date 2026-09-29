@@ -99,7 +99,7 @@ public partial class CharacterCreator : Control
         using var flag = FileAccess.Open("user://.gallery_request", FileAccess.ModeFlags.Write);
         if (flag == null)
         {
-            ShowError("No pude abrir la galería.");
+            ShowError(Tr("No pude abrir la galería."));
             return;
         }
         _galleryPollTimer.Start();
@@ -122,7 +122,7 @@ public partial class CharacterCreator : Control
         if (readyText == "cancelled" || readyText == "failed")
         {
             if (readyText == "failed")
-                ShowError("No pude cargar la imagen.");
+                ShowError(Tr("No pude cargar la imagen."));
             return;
         }
 
@@ -147,7 +147,7 @@ public partial class CharacterCreator : Control
 
         if (image == null)
         {
-            ShowError("No pude leer esa imagen.");
+            ShowError(Tr("No pude leer esa imagen."));
             return;
         }
 
@@ -161,7 +161,7 @@ public partial class CharacterCreator : Control
         var image = Image.LoadFromFile(path);
         if (image == null)
         {
-            ShowError("No pude leer esa imagen.");
+            ShowError(Tr("No pude leer esa imagen."));
             return;
         }
 

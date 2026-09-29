@@ -65,8 +65,14 @@ public partial class RoundEventDirector : Node
     }
 
     // Called from GameManager.EndRound. Everything an event created lives in one group, so teardown is a
-    // single sweep no matter which event ran — and the two global multipliers get reset unconditionally
+    // single sweep no matter which event ran — and the global multipliers get reset unconditionally
     // rather than only on the Frenzy path, so a mid-round crash or reload can't leave them stuck.
+    //
+    // Reset to the run's Risk Contract baseline (1f/1f/1f with no contract taken), not a bare 1f --
+    // these fields have exactly one writer between rounds (this method) and one during an event
+    // (StartFrenzy/StartArmor below), so a contract's "for the whole run" multiplier can only survive
+    // round-to-round if this is where it reverts to instead of being silently overwritten every time a
+    // round ends.
     public void EndActiveEvent()
     {
         _missileTimer?.Stop();
@@ -76,10 +82,10 @@ public partial class RoundEventDirector : Node
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.EnemySpeedMultiplier = 1f;
-            GameManager.Instance.BaseEnemySpeedMultiplier = 1f;
-            GameManager.Instance.EventRewardMultiplier = 1f;
-            GameManager.Instance.EventHpMultiplier = 1f;
+            GameManager.Instance.EnemySpeedMultiplier = GameManager.Instance.ContractSpeedMultiplier;
+            GameManager.Instance.BaseEnemySpeedMultiplier = GameManager.Instance.ContractSpeedMultiplier;
+            GameManager.Instance.EventRewardMultiplier = GameManager.Instance.ContractRewardMultiplier;
+            GameManager.Instance.EventHpMultiplier = GameManager.Instance.ContractHpMultiplier;
         }
 
         Active = RoundEventKind.None;
@@ -97,15 +103,19 @@ public partial class RoundEventDirector : Node
         // spawned mid-round too. BaseEnemySpeedMultiplier records Frenzy's speed-up as the multiplier to
         // return to, so firing that ultimate mid-Frenzy still cancels the speed-up for its duration, but
         // its own timer now restores back to Frenzy's value instead of a normal round's 1x.
-        GameManager.Instance.BaseEnemySpeedMultiplier = FrenzySpeedMultiplier;
-        GameManager.Instance.EnemySpeedMultiplier = FrenzySpeedMultiplier;
-        GameManager.Instance.EventRewardMultiplier = FrenzyRewardMultiplier;
+        //
+        // Multiplied onto the Risk Contract baseline, not assigned outright — a "faster enemies"
+        // contract and a Frenzy round should stack (this is meant to be the harder combination), not
+        // have whichever wrote last win.
+        GameManager.Instance.BaseEnemySpeedMultiplier = GameManager.Instance.ContractSpeedMultiplier * FrenzySpeedMultiplier;
+        GameManager.Instance.EnemySpeedMultiplier = GameManager.Instance.ContractSpeedMultiplier * FrenzySpeedMultiplier;
+        GameManager.Instance.EventRewardMultiplier = GameManager.Instance.ContractRewardMultiplier * FrenzyRewardMultiplier;
     }
 
     private void StartArmor()
     {
-        GameManager.Instance.EventHpMultiplier = ArmorHpMultiplier;
-        GameManager.Instance.EventRewardMultiplier = ArmorRewardMultiplier;
+        GameManager.Instance.EventHpMultiplier = GameManager.Instance.ContractHpMultiplier * ArmorHpMultiplier;
+        GameManager.Instance.EventRewardMultiplier = GameManager.Instance.ContractRewardMultiplier * ArmorRewardMultiplier;
     }
 
     private void StartMissileStrike()

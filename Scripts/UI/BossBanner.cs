@@ -65,7 +65,7 @@ public partial class BossBanner : Control
 
     public void Announce(int round)
     {
-        _label.Text = $"¡RONDA DE JEFE {round}!";
+        _label.Text = string.Format(Tr("¡RONDA DE JEFE {0}!"), round);
         Modulate = new Color(1f, 1f, 1f, 0f);
 
         AudioManager.Instance?.Play(AudioManager.Sfx.BossAlarm);

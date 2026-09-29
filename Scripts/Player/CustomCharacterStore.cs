@@ -78,10 +78,10 @@ public static class CustomCharacterStore
         name = name?.Trim() ?? "";
         description = description?.Trim() ?? "";
 
-        if (name.Length == 0) { error = "Ponele un nombre."; return null; }
-        if (name.Length > MaxNameLength) { error = $"El nombre no puede pasar de {MaxNameLength} caracteres."; return null; }
-        if (description.Length > MaxDescriptionLength) { error = $"La descripción no puede pasar de {MaxDescriptionLength} caracteres."; return null; }
-        if (string.IsNullOrEmpty(sourcePath)) { error = "Elegí una imagen."; return null; }
+        if (name.Length == 0) { error = TranslationServer.Translate("Ponele un nombre."); return null; }
+        if (name.Length > MaxNameLength) { error = string.Format(TranslationServer.Translate("El nombre no puede pasar de {0} caracteres."), MaxNameLength); return null; }
+        if (description.Length > MaxDescriptionLength) { error = string.Format(TranslationServer.Translate("La descripción no puede pasar de {0} caracteres."), MaxDescriptionLength); return null; }
+        if (string.IsNullOrEmpty(sourcePath)) { error = TranslationServer.Translate("Elegí una imagen."); return null; }
 
         var source = Image.LoadFromFile(sourcePath);
         if (source == null && sourcePath.StartsWith("/"))
@@ -98,7 +98,7 @@ public static class CustomCharacterStore
                 try { System.IO.File.Delete(tmp); } catch { }
             }
         }
-        if (source == null) { error = "No pude leer esa imagen."; return null; }
+        if (source == null) { error = TranslationServer.Translate("No pude leer esa imagen."); return null; }
 
         var config = new ConfigFile();
         config.Load(ConfigPath);   // missing file is fine: we're about to create it
@@ -109,7 +109,7 @@ public static class CustomCharacterStore
         DirAccess.MakeDirRecursiveAbsolute(ImageDir);
         if (portrait.SavePng($"{ImageDir}/{slug}.png") != Error.Ok)
         {
-            error = "No pude guardar la imagen.";
+            error = TranslationServer.Translate("No pude guardar la imagen.");
             return null;
         }
 

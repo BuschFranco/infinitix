@@ -28,7 +28,7 @@ public partial class MissionsMenu : Control
         UIUtil.AddSpeedLines(title.GetParent<Control>(), title.GetIndex());
         UIUtil.WireDimToClose(GetNode<Control>("Dim"), Close);
 
-        var hint = new Label { Text = "Se renuevan mañana", HorizontalAlignment = HorizontalAlignment.Center };
+        var hint = new Label { Text = Tr("Se renuevan mañana"), HorizontalAlignment = HorizontalAlignment.Center };
         hint.AddThemeFontSizeOverride("font_size", Palette.FontSize.Caption);
         hint.AddThemeColorOverride("font_color", new Color(0.65f, 0.72f, 0.82f));
         _content.AddChild(hint);

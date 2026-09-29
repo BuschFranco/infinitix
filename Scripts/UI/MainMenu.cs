@@ -79,8 +79,30 @@ public partial class MainMenu : Control
         librasValueLabel.AddThemeConstantOverride("outline_size", 2);
         statsRow.AddChild(librasValueLabel);
 
-        var accountLevelBar = GetNode<ProgressBar>("VBoxContainer/AccountLevelBarRow/AccountLevelBar");
-        RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+        // Login streak chip, same "another Label in the same StatsRow" recipe as the two above --
+        // hidden entirely on a 0-day streak (a fresh account, or one that hasn't played today at all
+        // yet this session) rather than showing "🔥 0", which would read as a broken counter.
+        var streakLabel = new Label();
+        streakLabel.AddThemeFontSizeOverride("font_size", 13);
+        streakLabel.AddThemeColorOverride("font_color", new Color(1f, 0.6f, 0.3f));
+        streakLabel.AddThemeColorOverride("font_outline_color", Colors.Black);
+        streakLabel.AddThemeConstantOverride("outline_size", 2);
+        statsRow.AddChild(streakLabel);
+
+        var accountLevelBar = GetNode<ProgressBar>("PlayerInfoBox/PlayerInfoColumn/LevelBarRow/AccountLevelBar");
+        RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, streakLabel, accountLevelBar);
+
+        // Consumed once, here -- GameManager.EnsureLoginStreak() already ran (at app boot, before this
+        // screen existed) and left at most one notice waiting. A plain floating label rather than a
+        // full toast card: this fires exactly once per session, right as the menu is still fading in,
+        // so it doesn't need NotificationToastController's stacking/queueing machinery. Deferred one
+        // frame so streakLabel.GlobalPosition reads its real laid-out position rather than the (0,0)
+        // a freshly-added Control reports before its first layout pass.
+        var streakNotice = GameManager.Instance?.ConsumeLoginStreakNotice();
+        if (streakNotice != null)
+        {
+            CallDeferred(nameof(ShowLoginStreakNotice), streakNotice.Value.Streak, streakNotice.Value.Reward, streakLabel);
+        }
 
         // Tapping the icon itself opens the quick swap picker (see ProfileIconPicker) instead of
         // sending the player all the way to the Tienda just to switch between icons they already own.
@@ -89,7 +111,7 @@ public partial class MainMenu : Control
         Juice.WireButtonFeedback(profileIconButton);
         iconPicker.VisibilityChanged += () =>
         {
-            if (!iconPicker.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+            if (!iconPicker.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, streakLabel, accountLevelBar);
         };
 
         // Read from the live instance, not a static file re-read like the high score above — Libras
@@ -99,7 +121,7 @@ public partial class MainMenu : Control
         // there and hitting Cancel updates the balance shown underneath.
         characterSelect.VisibilityChanged += () =>
         {
-            if (!characterSelect.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+            if (!characterSelect.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, streakLabel, accountLevelBar);
         };
 
         var options = GetNode<OptionsMenu>("OptionsMenu");
@@ -115,7 +137,7 @@ public partial class MainMenu : Control
             if (options.Visible) return;
             ApplyButtonsRowLayout();
             highScoreLabel.Text = string.Format(Tr("Mejor puntaje: {0}"), GameManager.LoadHighScore());
-            RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+            RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, streakLabel, accountLevelBar);
         };
 
         var builds = GetNode<BuildsMenu>("BuildsMenu");
@@ -127,7 +149,7 @@ public partial class MainMenu : Control
         tiendaButton.Pressed += cosmeticsShop.Open;
         cosmeticsShop.VisibilityChanged += () =>
         {
-            if (!cosmeticsShop.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+            if (!cosmeticsShop.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, streakLabel, accountLevelBar);
         };
 
         // Same refresh-on-close hook — achievement/mission payouts also spend into the same Libras
@@ -138,7 +160,7 @@ public partial class MainMenu : Control
         Juice.WireButtonFeedback(achievementsButton);
         achievementsMenu.VisibilityChanged += () =>
         {
-            if (!achievementsMenu.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+            if (!achievementsMenu.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, streakLabel, accountLevelBar);
         };
 
         // Split out of the combined Logros screen into its own button/screen, immediately to the
@@ -149,7 +171,7 @@ public partial class MainMenu : Control
         Juice.WireButtonFeedback(missionsButton);
         missionsMenu.VisibilityChanged += () =>
         {
-            if (!missionsMenu.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+            if (!missionsMenu.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, streakLabel, accountLevelBar);
         };
 
         // Read-only — no VisibilityChanged refresh hook needed, nothing here spends or earns Libras.
@@ -164,7 +186,7 @@ public partial class MainMenu : Control
         var onboarding = GetNode<OnboardingMenu>("OnboardingMenu");
         onboarding.VisibilityChanged += () =>
         {
-            if (!onboarding.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, accountLevelBar);
+            if (!onboarding.Visible) RefreshTopBox(playerNameLabel, profileIconRect, levelValueLabel, librasValueLabel, streakLabel, accountLevelBar);
         };
         if (GameManager.Instance.ShouldShowOnboarding) onboarding.Open();
 
@@ -284,7 +306,14 @@ public partial class MainMenu : Control
         };
     }
 
-    private void RefreshTopBox(Label playerNameLabel, TextureRect profileIconRect, Label levelValueLabel, Label librasValueLabel, ProgressBar accountLevelBar)
+    private void ShowLoginStreakNotice(int streak, int reward, Label streakLabel)
+    {
+        Juice.FloatingLabel(this, string.Format(Tr("🔥 Racha de {0} días  ·  +{1} Dinero"), streak, reward),
+            streakLabel.GlobalPosition + new Vector2(0f, 20f), new Color(1f, 0.6f, 0.3f), Palette.FontSize.Body,
+            driftY: -18f, holdBeforeFade: 1.2f, lifetime: 2f);
+    }
+
+    private void RefreshTopBox(Label playerNameLabel, TextureRect profileIconRect, Label levelValueLabel, Label librasValueLabel, Label streakLabel, ProgressBar accountLevelBar)
     {
         var gm = GameManager.Instance;
         playerNameLabel.Text = gm.PlayerName;
@@ -296,6 +325,8 @@ public partial class MainMenu : Control
         profileIconRect.Visible = iconTexture != null;
         levelValueLabel.Text = string.Format(Tr("Nv {0}"), gm.AccountLevel);
         librasValueLabel.Text = gm.Libras.ToString();
+        streakLabel.Text = $"🔥 {gm.LoginStreak}";
+        streakLabel.Visible = gm.LoginStreak > 0;
         accountLevelBar.MaxValue = gm.AccountXpToNextLevel;
         Juice.BarFill(accountLevelBar, gm.AccountXp);
     }
@@ -338,9 +369,9 @@ public partial class MainMenu : Control
         int charBudget = EstimateCharBudget(casualList, panelWidth);
 
         casualList.Text = RecordTable.Build(GameManager.LoadRecords(GameManager.GameMode.Classic),
-            MaxRecordsShown, charBudget, "Todavía no hay récords", animateFirst: true);
+            MaxRecordsShown, charBudget, Tr("Todavía no hay récords"), animateFirst: true);
         hardcoreList.Text = RecordTable.Build(GameManager.LoadRecords(GameManager.GameMode.Hardcore),
-            MaxRecordsShown, charBudget, "Todavía no hay récords", animateFirst: true);
+            MaxRecordsShown, charBudget, Tr("Todavía no hay récords"), animateFirst: true);
     }
 
     // How many monospaced characters actually fit in a panel of this width, measured against

@@ -98,8 +98,11 @@ public partial class RewardCard : PanelContainer
         _tierChip.Text = RewardTierRoller.GetTierName(data.Tier).ToUpperInvariant();
         _tierChip.AddThemeColorOverride("font_color", _tierColor);
 
-        _nameLabel.Text = data.Name;
-        _descLabel.Text = data.Description;
+        // data.Name/Description are the catalog's own Spanish literal (UpgradeData) -- Tr()'d here,
+        // at the one place every offer actually gets shown, rather than at each of ~100 catalog
+        // entries individually.
+        _nameLabel.Text = Tr(data.Name);
+        _descLabel.Text = Tr(data.Description);
 
         string stackInfo = player?.GetStackInfoText(data);
         _stackLabel.Text = stackInfo ?? "";
@@ -107,7 +110,7 @@ public partial class RewardCard : PanelContainer
 
         bool improves = player != null && player.IsUpgradeOverCurrent(data);
         _verdictChip.Visible = player != null;
-        _verdictChip.Text = improves ? "MEJORA" : "NO SUMA";
+        _verdictChip.Text = improves ? Tr("MEJORA") : Tr("NO SUMA");
         _verdictChip.AddThemeColorOverride("font_color", improves ? VerdictImproves : VerdictNeutral);
 
         ConfigurePrice(cost, surcharge);
@@ -120,7 +123,7 @@ public partial class RewardCard : PanelContainer
     {
         if (cost == null)
         {
-            _priceLabel.Text = "GRATIS";
+            _priceLabel.Text = Tr("GRATIS");
             _priceLabel.AddThemeColorOverride("font_color", FreeColor);
             return;
         }
@@ -135,8 +138,8 @@ public partial class RewardCard : PanelContainer
         //
         // The wealth-inflation multiplier stays invisible, as before — it applies to every offer on
         // screen equally, so surfacing it wouldn't help anyone choose between them.
-        string suffix = surcharge > 0 ? $" (+{surcharge} por repetir)" : "";
-        _priceLabel.Text = $"{cost.Value}{suffix} monedas";
+        string suffix = surcharge > 0 ? string.Format(Tr(" (+{0} por repetir)"), surcharge) : "";
+        _priceLabel.Text = string.Format(Tr("{0}{1} monedas"), cost.Value, suffix);
         _priceLabel.AddThemeColorOverride("font_color", affordable ? PriceAffordable : PriceTooExpensive);
     }
 
@@ -145,7 +148,7 @@ public partial class RewardCard : PanelContainer
     {
         if (alreadyTaken)
         {
-            SetAction("Comprada", false);
+            SetAction(Tr("Comprada"), false);
             return;
         }
 
@@ -160,7 +163,7 @@ public partial class RewardCard : PanelContainer
         int coins = GameManager.Instance?.Coins ?? 0;
         if (cost != null && coins < cost.Value)
         {
-            SetAction($"Faltan {cost.Value - coins}", false);
+            SetAction(string.Format(Tr("Faltan {0}"), cost.Value - coins), false);
             return;
         }
 
@@ -236,7 +239,7 @@ public partial class RewardCard : PanelContainer
             return;
         }
 
-        _buildHintLabel.Text = $"¡Con esta recompensa armás la build \"{BuildCatalog.Name(completes.Value)}\"!";
+        _buildHintLabel.Text = string.Format(Tr("¡Con esta recompensa armás la build \"{0}\"!"), Tr(BuildCatalog.Name(completes.Value)));
         _buildHintBox.CustomMinimumSize = new Vector2(_buildHintBox.CustomMinimumSize.X,
             MeasureTextHeight(_buildHintLabel, _buildHintLabel.Text, MeasureWidth));
     }

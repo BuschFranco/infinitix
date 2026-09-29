@@ -71,7 +71,10 @@ public partial class UpgradePicker : Control
 
         _currentChoices = choices;
         _resolving = false;
-        _title.Text = title;
+        // title is one of the Spanish literal consts above (LevelUpTitle/UltimateTitle) or whatever a
+        // future caller passes -- Tr()'d here, at the one place it's actually displayed, rather than
+        // at the const declarations themselves, since a `const string` can't call a runtime method.
+        _title.Text = Tr(title);
 
         // Re-applied per open for the same reason as Shop's: orientation is a settings toggle.
         ApplyOrientationLayout();
@@ -112,12 +115,12 @@ public partial class UpgradePicker : Control
         // player would take one and wonder why nothing changed.
         if (allUseless)
         {
-            _title.Text = "Ya tenés todo esto al máximo";
-            _freeHint.Text = "Ninguna de estas opciones te suma nada. Elegí cualquiera para seguir.";
+            _title.Text = Tr("Ya tenés todo esto al máximo");
+            _freeHint.Text = Tr("Ninguna de estas opciones te suma nada. Elegí cualquiera para seguir.");
         }
         else
         {
-            _freeHint.Text = FreeHintDefault;
+            _freeHint.Text = Tr(FreeHintDefault);
         }
 
         BuildCards(choices, highlight, allUseless);
@@ -156,7 +159,7 @@ public partial class UpgradePicker : Control
             card.SizeFlagsVertical = SizeFlags.ExpandFill;
             _cardsContainer.AddChild(card);
             // cost: null is what makes the card show GRATIS instead of a price.
-            card.Configure(choices[i], cost: null, surcharge: 0, highlight[i], "Elegir", alreadyTaken: false,
+            card.Configure(choices[i], cost: null, surcharge: 0, highlight[i], Tr("Elegir"), alreadyTaken: false,
                 allowUseless: allowUseless);
             card.Activated += () => OnChoicePressed(index);
             _cards.Add(card);

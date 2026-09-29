@@ -55,9 +55,9 @@ public partial class StatsMenu : Control
         grid.AddThemeConstantOverride("v_separation", 6);
         _content.AddChild(grid);
 
-        AddTab(grid, GameManager.StatsPeriod.Total, "Total");
-        AddTab(grid, GameManager.StatsPeriod.Month, "Mes");
-        AddTab(grid, GameManager.StatsPeriod.Week, "Semana");
+        AddTab(grid, GameManager.StatsPeriod.Total, Tr("Total"));
+        AddTab(grid, GameManager.StatsPeriod.Month, Tr("Mes"));
+        AddTab(grid, GameManager.StatsPeriod.Week, Tr("Semana"));
     }
 
     private void AddTab(GridContainer grid, GameManager.StatsPeriod period, string label)
@@ -113,43 +113,43 @@ public partial class StatsMenu : Control
         var gm = GameManager.Instance;
         var stats = gm.GetStats(_period);
 
-        _rows.AddChild(SectionHeading("ACTIVIDAD RECIENTE (7 DÍAS)"));
+        _rows.AddChild(SectionHeading(Tr("ACTIVIDAD RECIENTE (7 DÍAS)")));
         _rows.AddChild(BuildActivityChart(gm));
 
-        _rows.AddChild(SectionHeading("ACTIVIDAD"));
+        _rows.AddChild(SectionHeading(Tr("ACTIVIDAD")));
         var activityGrid = NewCardGrid();
         _rows.AddChild(activityGrid);
-        AddCard(activityGrid, "Enemigos\neliminados", stats.EnemiesKilled.ToString(), Palette.Accent);
-        AddCard(activityGrid, "Jefes\nderrotados", stats.BossesKilled.ToString(), Palette.UltimatePanelBorder);
-        AddCard(activityGrid, "Críticos", stats.CritsLanded.ToString(), Palette.DamageNumber);
-        AddCard(activityGrid, "Rondas\nsuperadas", stats.RoundsCleared.ToString(), Palette.OndaBlast);
-        AddCard(activityGrid, "Monedas\nganadas", stats.CoinsEarned.ToString(), Palette.MineBlast);
-        AddCard(activityGrid, "Dinero\nganado", stats.LibrasEarned.ToString(), Palette.LevelPopup);
-        AddCard(activityGrid, "Partidas\njugadas", stats.RunsPlayed.ToString(), Palette.ShopPanelBorder);
-        AddCard(activityGrid, "Tiempo\njugado", FormatDuration(stats.PlayTimeSeconds), Palette.ShieldAura);
+        AddCard(activityGrid, Tr("Enemigos\neliminados"), stats.EnemiesKilled.ToString(), Palette.Accent);
+        AddCard(activityGrid, Tr("Jefes\nderrotados"), stats.BossesKilled.ToString(), Palette.UltimatePanelBorder);
+        AddCard(activityGrid, Tr("Críticos"), stats.CritsLanded.ToString(), Palette.DamageNumber);
+        AddCard(activityGrid, Tr("Rondas\nsuperadas"), stats.RoundsCleared.ToString(), Palette.OndaBlast);
+        AddCard(activityGrid, Tr("Monedas\nganadas"), stats.CoinsEarned.ToString(), Palette.MineBlast);
+        AddCard(activityGrid, Tr("Dinero\nganado"), stats.LibrasEarned.ToString(), Palette.LevelPopup);
+        AddCard(activityGrid, Tr("Partidas\njugadas"), stats.RunsPlayed.ToString(), Palette.ShopPanelBorder);
+        AddCard(activityGrid, Tr("Tiempo\njugado"), FormatDuration(stats.PlayTimeSeconds), Palette.ShieldAura);
 
-        _rows.AddChild(SectionHeading("PROGRESO"));
+        _rows.AddChild(SectionHeading(Tr("PROGRESO")));
         var ringGrid = NewRingGrid();
         _rows.AddChild(ringGrid);
         AddRing(ringGrid, gm.TotalEnemiesKilled > 0 ? gm.TotalCritsLanded / (float)gm.TotalEnemiesKilled : 0f,
-            FormatPercent(gm.TotalCritsLanded, gm.TotalEnemiesKilled), Palette.DamageNumber, "Precisión\n(críticos)");
+            FormatPercent(gm.TotalCritsLanded, gm.TotalEnemiesKilled), Palette.DamageNumber, Tr("Precisión\n(críticos)"));
         AddRing(ringGrid, gm.UnlockedAchievementsCount / (float)AchievementCatalog.All.Length,
-            $"{gm.UnlockedAchievementsCount}/{AchievementCatalog.All.Length}", Palette.UltimatePanelBorder, "Logros");
+            $"{gm.UnlockedAchievementsCount}/{AchievementCatalog.All.Length}", Palette.UltimatePanelBorder, Tr("Logros"));
         AddRing(ringGrid, gm.EverCompletedBuilds.Count / (float)BuildCatalog.ClassOrder.Length,
-            $"{gm.EverCompletedBuilds.Count}/{BuildCatalog.ClassOrder.Length}", Palette.ShopPanelBorder, "Builds");
+            $"{gm.EverCompletedBuilds.Count}/{BuildCatalog.ClassOrder.Length}", Palette.ShopPanelBorder, Tr("Builds"));
         int legendaryTotal = System.Enum.GetValues<UpgradeType>().Length;
         AddRing(ringGrid, gm.EverGotLegendary.Count / (float)legendaryTotal,
-            $"{gm.EverGotLegendary.Count}/{legendaryTotal}", Palette.ShieldAura, "Legendarias\ndistintas");
+            $"{gm.EverGotLegendary.Count}/{legendaryTotal}", Palette.ShieldAura, Tr("Legendarias\ndistintas"));
 
-        _rows.AddChild(SectionHeading("RESUMEN GENERAL"));
+        _rows.AddChild(SectionHeading(Tr("RESUMEN GENERAL")));
         var summaryGrid = NewCardGrid();
         _rows.AddChild(summaryGrid);
-        AddCard(summaryGrid, "Mejor\npuntaje", GameManager.LoadHighScore().ToString(), Palette.Accent);
-        AddCard(summaryGrid, "Mejor ronda\nalcanzada", gm.BestRoundReached.ToString(), Palette.VendavalBlast);
-        AddCard(summaryGrid, "Nivel de\ncuenta", gm.AccountLevel.ToString(), Palette.ShieldAura);
-        AddCard(summaryGrid, "Misiones\ncompletadas", gm.TotalMissionsCompleted.ToString(), Palette.OndaBlast);
-        AddCard(summaryGrid, "Personajes\ndesbloqueados", gm.UnlockedCharacters.Count.ToString(), Palette.LevelPopup);
-        AddCard(summaryGrid, "Cosméticos\ncomprados", gm.OwnedCosmetics.Count.ToString(), Palette.MineBlast);
+        AddCard(summaryGrid, Tr("Mejor\npuntaje"), GameManager.LoadHighScore().ToString(), Palette.Accent);
+        AddCard(summaryGrid, Tr("Mejor ronda\nalcanzada"), gm.BestRoundReached.ToString(), Palette.VendavalBlast);
+        AddCard(summaryGrid, Tr("Nivel de\ncuenta"), gm.AccountLevel.ToString(), Palette.ShieldAura);
+        AddCard(summaryGrid, Tr("Misiones\ncompletadas"), gm.TotalMissionsCompleted.ToString(), Palette.OndaBlast);
+        AddCard(summaryGrid, Tr("Personajes\ndesbloqueados"), gm.UnlockedCharacters.Count.ToString(), Palette.LevelPopup);
+        AddCard(summaryGrid, Tr("Cosméticos\ncomprados"), gm.OwnedCosmetics.Count.ToString(), Palette.MineBlast);
 
         FitToOrientation();
     }

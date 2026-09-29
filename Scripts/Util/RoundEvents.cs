@@ -43,14 +43,18 @@ public static class RoundEvents
 
     // Shown once after the countdown, via the same callout DangerOverlay uses for threat levels. Kept
     // short: it's on screen for under two seconds while the round is already starting.
-    public static string Announcement(RoundEventKind kind) => kind switch
+    public static string Announcement(RoundEventKind kind)
     {
-        RoundEventKind.MissileStrike => "¡LLUVIA DE MISILES!",
-        RoundEventKind.Fog => "¡NIEBLA!",
-        RoundEventKind.Frenzy => "¡FRENESÍ! BOTÍN DOBLE",
-        RoundEventKind.ShrinkingZone => "¡ZONA QUE SE ENCOGE!",
-        RoundEventKind.Minefield => "¡CAMPO MINADO!",
-        RoundEventKind.Armor => "¡BLINDAJE! BOTÍN +60%",
-        _ => null,
-    };
+        string text = kind switch
+        {
+            RoundEventKind.MissileStrike => "¡LLUVIA DE MISILES!",
+            RoundEventKind.Fog => "¡NIEBLA!",
+            RoundEventKind.Frenzy => "¡FRENESÍ! BOTÍN DOBLE",
+            RoundEventKind.ShrinkingZone => "¡ZONA QUE SE ENCOGE!",
+            RoundEventKind.Minefield => "¡CAMPO MINADO!",
+            RoundEventKind.Armor => "¡BLINDAJE! BOTÍN +60%",
+            _ => null,
+        };
+        return text == null ? null : TranslationServer.Translate(text);
+    }
 }
